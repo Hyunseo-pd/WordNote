@@ -314,9 +314,9 @@ function App() {
             </button>
           )}
 
-          <div>
+          <div className="meanigList">
             {meanings.map((item, index) => (
-              <p key={index} className="meanigList">
+              <p key={index}>
                 {item.preposition}+{item.caseType}: {item.meaning}
               </p>
             ))}

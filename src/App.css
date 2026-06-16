@@ -151,6 +151,10 @@
   align-items: center;
 }
 
+.meanigList {
+  grid-column: 1 / span 2;
+}
+
 .participle-field {
   grid-column: span 2;
 }
