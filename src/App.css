@@ -319,6 +319,11 @@ button:hover {
   background: var(--item-bg);
 }
 
+.word-item > div:first-child {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
 .word-item strong {
   display: block;
   margin-bottom: 4px;
@@ -345,9 +350,110 @@ button:hover {
   color: var(--muted);
 }
 
-.word-item button {
+.word-actions {
+  display: grid;
+  gap: 8px;
+  flex: 0 0 auto;
+}
+
+.word-item button.delete-button {
   flex: 0 0 auto;
   background: var(--danger);
+}
+
+.word-item button.edit-button {
+  border: 1px solid var(--accent);
+  background: transparent;
+  color: var(--accent);
+}
+
+.word-item button.edit-save-button {
+  background: var(--accent);
+  color: white;
+}
+
+.edit-word-field,
+.edit-meanings {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 10px;
+  color: var(--text-h);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.edit-word-field input,
+.edit-meaning-row input {
+  width: 100%;
+  min-width: 0;
+  height: 40px;
+  padding: 0 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--input-bg);
+  color: var(--text-h);
+  font: inherit;
+  box-sizing: border-box;
+}
+
+.edit-word-field input:focus,
+.edit-meaning-row input:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.edit-meanings-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  align-items: center;
+}
+
+.add-edit-meaning {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border-radius: 999px;
+  background: var(--accent);
+  line-height: 1;
+}
+
+.edit-meaning-row {
+  display: grid;
+  grid-template-columns: minmax(80px, 0.7fr) auto minmax(120px, 1fr);
+  gap: 8px;
+  align-items: center;
+}
+
+.edit-meaning-row > input:only-child {
+  grid-column: 1 / -1;
+}
+
+.edit-case-options {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.edit-case-options label {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  height: 40px;
+  padding: 0 8px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--input-bg);
+  color: var(--text-h);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.edit-case-options input {
+  width: 14px;
+  height: 14px;
+  padding: 0;
+  accent-color: var(--accent);
 }
 
 @media (max-width: 640px) {
@@ -392,5 +498,18 @@ button:hover {
   .word-item {
     align-items: stretch;
     flex-direction: column;
+  }
+
+  .word-actions {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .edit-meaning-row {
+    grid-template-columns: 1fr;
+  }
+
+  .edit-case-options {
+    overflow-x: auto;
+    padding-bottom: 2px;
   }
 }

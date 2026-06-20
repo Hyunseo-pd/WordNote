@@ -89,6 +89,18 @@ const getDisplayFieldRows = (displayFields) =>
     ];
   });
 
+const formatMeaningDisplay = (meaningItem, shouldShowUsage) => {
+  if (!shouldShowUsage) {
+    return meaningItem.meaning;
+  }
+
+  const usage = [meaningItem.preposition, meaningItem.caseType]
+    .filter(Boolean)
+    .join("+");
+
+  return usage ? `${usage}: ${meaningItem.meaning}` : meaningItem.meaning;
+};
+
 function App() {
   const [page, setPage] = useState("home");
   const [word, setWord] = useState("");
@@ -99,6 +111,8 @@ function App() {
   const [part, setPart] = useState("");
   const [fields, setFields] = useState(INITIAL_FIELDS);
   const [searchQuery, setSearchQuery] = useState("");
+  const [editingWordId, setEditingWordId] = useState(null);
+  const [editingWord, setEditingWord] = useState(null);
 
   const [words, setWords] = useState(() => {
     const savedWords = localStorage.getItem(STORAGE_KEY);
@@ -197,6 +211,71 @@ function App() {
 
   const deleteWord = (id) => {
     setWords(words.filter((item) => item.id !== id));
+  };
+
+  const startEditingWord = (item) => {
+    setEditingWordId(item.id);
+    setEditingWord({
+      word: item.word,
+      meanings:
+        item.meanings?.length > 0
+          ? item.meanings.map((meaningItem) => ({ ...meaningItem }))
+          : [{ preposition: "", caseType: "", meaning: "" }],
+    });
+  };
+
+  const updateEditingMeaning = (index, name, value) => {
+    setEditingWord((prevWord) => ({
+      ...prevWord,
+      meanings: prevWord.meanings.map((meaningItem, meaningIndex) =>
+        meaningIndex === index
+          ? { ...meaningItem, [name]: value }
+          : meaningItem,
+      ),
+    }));
+  };
+
+  const addEditingMeaning = () => {
+    setEditingWord((prevWord) => ({
+      ...prevWord,
+      meanings: [
+        ...prevWord.meanings,
+        { preposition: "", caseType: "", meaning: "" },
+      ],
+    }));
+  };
+
+  const saveEditingWord = (id) => {
+    const trimmedWord = editingWord.word.trim();
+    const savedMeanings = editingWord.meanings
+      .map((meaningItem) => ({
+        preposition: meaningItem.preposition.trim(),
+        caseType: meaningItem.caseType,
+        meaning: meaningItem.meaning.trim(),
+      }))
+      .filter(
+        (meaningItem) =>
+          meaningItem.preposition || meaningItem.caseType || meaningItem.meaning,
+      );
+
+    if (!trimmedWord || savedMeanings.length === 0) {
+      return;
+    }
+
+    setWords((prevWords) =>
+      prevWords.map((item) =>
+        item.id === id
+          ? {
+              ...item,
+              word:
+                item.part === "명사" ? capitalizeNoun(trimmedWord) : trimmedWord,
+              meanings: savedMeanings,
+            }
+          : item,
+      ),
+    );
+    setEditingWordId(null);
+    setEditingWord(null);
   };
 
   const exportWords = () => {
@@ -316,9 +395,7 @@ function App() {
 
           <div className="meanigList">
             {meanings.map((item, index) => (
-              <p key={index}>
-                {item.preposition}+{item.caseType}: {item.meaning}
-              </p>
+              <p key={index}>{formatMeaningDisplay(item, isVerb)}</p>
             ))}
           </div>
 
@@ -428,21 +505,114 @@ function App() {
           <ul className="word-list">
             {filteredWords.map((item) => {
               const displayFields = item.fields ?? {};
+              const isEditing = editingWordId === item.id && editingWord;
+              const editingMeanings = editingWord?.meanings ?? [];
 
               return (
                 <li key={item.id} className="word-item">
                   <div>
-                    <strong>
-                      {displayFields.gender ? `${displayFields.gender} ` : ""}
-                      {item.word}
-                      {displayFields.plural ? `-${displayFields.plural}` : ""}
-                    </strong>
-                    {(item.meanings ?? []).map((meaningitem, index) => (
-                      <p key={index}>
-                        {meaningitem.preposition}+{meaningitem.caseType}:{" "}
-                        {meaningitem.meaning}
-                      </p>
-                    ))}
+                    {isEditing ? (
+                      <label className="edit-word-field">
+                        단어
+                        <input
+                          value={editingWord.word}
+                          onChange={(event) =>
+                            setEditingWord((prevWord) => ({
+                              ...prevWord,
+                              word: event.target.value,
+                            }))
+                          }
+                        />
+                      </label>
+                    ) : (
+                      <strong>
+                        {displayFields.gender
+                          ? `${displayFields.gender} `
+                          : ""}
+                        {item.word}
+                        {displayFields.plural ? `-${displayFields.plural}` : ""}
+                      </strong>
+                    )}
+                    {isEditing ? (
+                      <div className="edit-meanings">
+                        <div className="edit-meanings-header">
+                          <span>{item.part === "동사" ? "용법" : "뜻"}</span>
+                          {item.part === "동사" && (
+                            <button
+                              type="button"
+                              className="add-edit-meaning"
+                              onClick={addEditingMeaning}
+                              aria-label="용법 추가"
+                            >
+                              +
+                            </button>
+                          )}
+                        </div>
+                        {editingMeanings.map((meaningItem, index) => (
+                          <div key={index} className="edit-meaning-row">
+                            {item.part === "동사" && (
+                              <>
+                                <input
+                                  value={meaningItem.preposition}
+                                  onChange={(event) =>
+                                    updateEditingMeaning(
+                                      index,
+                                      "preposition",
+                                      event.target.value,
+                                    )
+                                  }
+                                  placeholder="전치사"
+                                />
+                                <div
+                                  className="edit-case-options"
+                                  aria-label="용법 선택"
+                                >
+                                  {["Akk", "Dat", "Gen"].map((caseItem) => (
+                                    <label key={caseItem}>
+                                      <input
+                                        type="radio"
+                                        name={`edit-case-${item.id}-${index}`}
+                                        checked={
+                                          meaningItem.caseType === caseItem
+                                        }
+                                        onChange={() =>
+                                          updateEditingMeaning(
+                                            index,
+                                            "caseType",
+                                            caseItem,
+                                          )
+                                        }
+                                      />
+                                      <span>{caseItem}</span>
+                                    </label>
+                                  ))}
+                                </div>
+                              </>
+                            )}
+                            <input
+                              value={meaningItem.meaning}
+                              onChange={(event) =>
+                                updateEditingMeaning(
+                                  index,
+                                  "meaning",
+                                  event.target.value,
+                                )
+                              }
+                              placeholder="뜻"
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      (item.meanings ?? []).map((meaningItem, index) => (
+                        <p key={index}>
+                          {formatMeaningDisplay(
+                            meaningItem,
+                            item.part === "동사",
+                          )}
+                        </p>
+                      ))
+                    )}
 
                     {getDisplayFieldRows(displayFields).map((field) => (
                       <p key={field.name} className="word-field">
@@ -452,9 +622,32 @@ function App() {
                     {item.part && <p className="word-part">{item.part}</p>}
                     <small>{item.createdAt}</small>
                   </div>
-                  <button type="button" onClick={() => deleteWord(item.id)}>
-                    삭제
-                  </button>
+                  <div className="word-actions">
+                    {isEditing ? (
+                      <button
+                        type="button"
+                        className="edit-save-button"
+                        onClick={() => saveEditingWord(item.id)}
+                      >
+                        저장
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        className="edit-button"
+                        onClick={() => startEditingWord(item)}
+                      >
+                        수정
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      className="delete-button"
+                      onClick={() => deleteWord(item.id)}
+                    >
+                      삭제
+                    </button>
+                  </div>
                 </li>
               );
             })}
