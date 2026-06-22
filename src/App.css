@@ -87,12 +87,32 @@
   color: var(--text-h);
 }
 
+.json-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.json-file-input {
+  display: none;
+}
+
+.import-button,
 .export-button {
   width: auto;
   height: 36px;
   padding: 0 12px;
-  background: #7c3aed;
   font-size: 14px;
+}
+
+.import-button {
+  border: 1px solid var(--accent);
+  background: transparent;
+  color: var(--accent);
+}
+
+.export-button {
+  background: #7c3aed;
 }
 
 .word-form {
@@ -477,6 +497,11 @@ button:hover {
   .panel-actions {
     align-items: stretch;
     flex-direction: column;
+  }
+
+  .json-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
   }
 
   .word-form {

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import "./App.css";
 
 const STORAGE_KEY = "language-app-words";
@@ -102,6 +102,7 @@ const formatMeaningDisplay = (meaningItem, shouldShowUsage) => {
 };
 
 function App() {
+  const fileInputRef = useRef(null);
   const [page, setPage] = useState("home");
   const [word, setWord] = useState("");
   const [meaning, setMeaning] = useState("");
@@ -292,6 +293,38 @@ function App() {
     URL.revokeObjectURL(url);
   };
 
+  const importWords = async (event) => {
+    const file = event.target.files?.[0];
+
+    if (!file) {
+      return;
+    }
+
+    try {
+      const text = await file.text();
+      const importedWords = JSON.parse(text);
+
+      if (!Array.isArray(importedWords)) {
+        throw new Error("Uploaded JSON must be an array.");
+      }
+
+      setWords(
+        importedWords.map((item) => ({
+          ...item,
+          id: item.id || crypto.randomUUID(),
+          meanings: Array.isArray(item.meanings) ? item.meanings : [],
+          fields: item.fields ?? {},
+        })),
+      );
+      setSearchQuery("");
+    } catch (error) {
+      window.alert("JSON 파일을 불러오지 못했습니다. 파일 형식을 확인해주세요.");
+      console.error(error);
+    } finally {
+      event.target.value = "";
+    }
+  };
+
   if (page === "home") {
     return (
       <main className="app">
@@ -327,9 +360,29 @@ function App() {
           >
             언어 리스트
           </button>
-          <button className="export-button" type="button" onClick={exportWords}>
-            JSON 내보내기
-          </button>
+          <div className="json-actions">
+            <input
+              ref={fileInputRef}
+              className="json-file-input"
+              type="file"
+              accept="application/json,.json"
+              onChange={importWords}
+            />
+            <button
+              className="import-button"
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+            >
+              JSON 가져오기
+            </button>
+            <button
+              className="export-button"
+              type="button"
+              onClick={exportWords}
+            >
+              JSON 내보내기
+            </button>
+          </div>
         </div>
 
         <div className="app-header">
