@@ -1,5 +1,13 @@
+import { useEffect, useRef, useState } from "react";
+import "./App.css";
+
 const STORAGE_KEY = "japanese-words";
+
 function JapaneseWordForm({ setPage }) {
+  const fileInputRef = useRef(null);
+  const [word, setWord] = useState("");
+  const [meaning, setMeaning] = useState("");
+
   return (
     <main className="app">
       <section className="home-panel">

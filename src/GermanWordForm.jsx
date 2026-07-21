@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import "./App.css";
 
-const STORAGE_KEY = "language-app-words";
+const STORAGE_KEY = "german-words";
 
 const GENDERS = [
   { label: "남성", value: "der" },

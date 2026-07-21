@@ -4,15 +4,22 @@ import "./App.css";
 import GermanWordForm from "./GermanWordForm.jsx";
 import JapaneseWordForm from "./JapaneseWordForm.jsx";
 
-const STORAGE_KEY = "language-app-words";
+const GERMAN_STORAGE_KEY = "german-words";
+const JAPANESE_STORAGE_KEY = "japanese-words";
 
 function App() {
   const [page, setPage] = useState("home");
-  const [words, setWords] = useState(() => {
-    const savedWords = localStorage.getItem(STORAGE_KEY);
-    return savedWords ? JSON.parse(savedWords) : [];
+  const [Germanwords, setWordsGerman] = useState(() => {
+    const savedWordsGerman = localStorage.getItem(GERMAN_STORAGE_KEY);
+
+    return savedWordsGerman ? JSON.parse(savedWordsGerman) : [];
   });
 
+  const [Japanesewords, setWordsJapanese] = useState(() => {
+    const savedWordsJapanese = localStorage.getItem(JAPANESE_STORAGE_KEY);
+
+    return savedWordsJapanese ? JSON.parse(savedWordsJapanese) : [];
+  });
   if (page === "home") {
     return (
       <main className="app">
@@ -29,7 +36,7 @@ function App() {
               onClick={() => setPage("german")}
             >
               <span>독일어 단어장</span>
-              <small>{words.length}개 저장됨</small>
+              <small>{Germanwords.length}개 저장됨</small>
             </button>
             <button
               className="language-button"
@@ -37,7 +44,7 @@ function App() {
               onClick={() => setPage("japanese")}
             >
               <span>일본어 단어장</span>
-              <small>{words.length}개 저장됨</small>
+              <small>{Japanesewords.length}개 저장됨</small>
             </button>
           </div>
         </section>
