@@ -2,6 +2,7 @@ import { useState } from "react";
 import "./App.css";
 
 import GermanWordForm from "./GermanWordForm.jsx";
+import JapaneseWordForm from "./JapaneseWordForm.jsx";
 
 const STORAGE_KEY = "language-app-words";
 
@@ -49,23 +50,7 @@ function App() {
   }
 
   if (page === "japanese") {
-    return (
-      <main className="app">
-        <section className="home-panel">
-          <button
-            className="back-button"
-            type="button"
-            onClick={() => setPage("home")}
-          >
-            언어 리스트
-          </button>
-          <div className="app-header">
-            <p className="eyebrow">My Japanese dictionary</p>
-            <h1>일본어 단어장</h1>
-          </div>
-        </section>
-      </main>
-    );
+    return <JapaneseWordForm setPage={setPage} />;
   }
 }
 export default App;
