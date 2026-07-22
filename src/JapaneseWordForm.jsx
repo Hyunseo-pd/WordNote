@@ -16,6 +16,23 @@ function JapaneseWordForm({ setPage }) {
     const savedWords = localStorage.getItem(STORAGE_KEY);
     return savedWords ? JSON.parse(savedWords) : [];
   });
+  const normalizedSearchQuery = searchQuery.trim().toLocaleLowerCase("ko-KR");
+  const filteredWords = normalizedSearchQuery
+    ? words.filter((item) => {
+        const searchableText = [
+          item.word,
+          item.yomigana,
+          item.readingType,
+          item.createdAt,
+          ...(Array.isArray(item.meanings) ? item.meanings : []),
+        ]
+          .filter(Boolean)
+          .join(" ")
+          .toLocaleLowerCase("ko-KR");
+
+        return searchableText.includes(normalizedSearchQuery);
+      })
+    : words;
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(words));
   }, [words]);
@@ -180,14 +197,27 @@ function JapaneseWordForm({ setPage }) {
 
         <div className="word-list-header">
           <h2>저장한 단어</h2>
-          <span>{words.length}개</span>
+          <span>
+            {filteredWords.length} / {words.length}개
+          </span>
         </div>
+
+        <label className="word-search">
+          <span>검색</span>
+          <input
+            value={searchQuery}
+            onChange={(event) => setSearchQuery(event.target.value)}
+            placeholder="단어, 뜻, 요미가나로 검색"
+          />
+        </label>
 
         {words.length === 0 ? (
           <p className="empty-message">아직 저장한 단어가 없습니다.</p>
+        ) : filteredWords.length === 0 ? (
+          <p className="empty-message">검색 결과가 없습니다.</p>
         ) : (
           <ul className="word-list">
-            {words.map((word) => (
+            {filteredWords.map((word) => (
               <li key={word.id} className="word-item">
                 <div>
                   <p className="yomigana">{word.yomigana}</p>
