@@ -10,6 +10,7 @@ function JapaneseWordForm({ setPage }) {
   const [meaning, setMeaning] = useState("");
   const [yomigana, setYomigana] = useState("");
   const [readingType, setReadingType] = useState(READING_TYPES[0]);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const [words, setWords] = useState(() => {
     const savedWords = localStorage.getItem(STORAGE_KEY);
@@ -77,7 +78,6 @@ function JapaneseWordForm({ setPage }) {
           ...item,
           id: item.id || crypto.randomUUID(),
           meanings: Array.isArray(item.meanings) ? item.meanings : [],
-          fields: item.fields ?? {},
         })),
       );
       setSearchQuery("");
@@ -131,7 +131,7 @@ function JapaneseWordForm({ setPage }) {
           <p className="eyebrow">My Japanese dictionary</p>
           <h1>일본어 단어장</h1>
         </div>
-        <form className={`word-form `} onSubmit={handleSubmit}>
+        <form className={`word-form standard-form`} onSubmit={handleSubmit}>
           <label className="wordInput">
             단어
             <input
@@ -141,19 +141,19 @@ function JapaneseWordForm({ setPage }) {
             />
           </label>
           <label>
-            뜻
-            <input
-              value={meaning}
-              onChange={(event) => setMeaning(event.target.value)}
-              placeholder="뜻을 입력하세요"
-            />
-          </label>
-          <label>
             読み仮名
             <input
               value={yomigana}
               onChange={(event) => setYomigana(event.target.value)}
               placeholder="읽는 방법을 입력하세요"
+            />
+          </label>
+          <label>
+            뜻
+            <input
+              value={meaning}
+              onChange={(event) => setMeaning(event.target.value)}
+              placeholder="뜻을 입력하세요"
             />
           </label>
 

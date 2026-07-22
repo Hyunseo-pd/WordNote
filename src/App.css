@@ -226,7 +226,8 @@
   white-space: nowrap;
 }
 
-.part-field {
+.part-field,
+.reading-type {
   grid-column: 1/-1;
 }
 
