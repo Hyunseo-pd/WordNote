@@ -2,11 +2,14 @@ import { useEffect, useRef, useState } from "react";
 import "./App.css";
 
 const STORAGE_KEY = "japanese-words";
+const READING_TYPES = ["음독", "훈독"];
 
 function JapaneseWordForm({ setPage }) {
   const fileInputRef = useRef(null);
   const [word, setWord] = useState("");
   const [meaning, setMeaning] = useState("");
+  const [yomigana, setYomigana] = useState("");
+  const [readingType, setReadingType] = useState(READING_TYPES[0]);
 
   const [words, setWords] = useState(() => {
     const savedWords = localStorage.getItem(STORAGE_KEY);
@@ -25,13 +28,19 @@ function JapaneseWordForm({ setPage }) {
         id: crypto.randomUUID(),
         word: trimmedWord,
         meanings: [meaning],
-
+        yomigana: yomigana,
+        readingType: readingType,
         createdAt: new Date().toLocaleDateString("ko-KR"),
       },
       ...words,
     ]);
     setWord("");
     setMeaning("");
+    setYomigana("");
+  };
+
+  const deleteWord = (id) => {
+    setWords(words.filter((item) => item.id !== id));
   };
 
   const exportWords = () => {
@@ -139,11 +148,64 @@ function JapaneseWordForm({ setPage }) {
               placeholder="뜻을 입력하세요"
             />
           </label>
+          <label>
+            読み仮名
+            <input
+              value={yomigana}
+              onChange={(event) => setYomigana(event.target.value)}
+              placeholder="읽는 방법을 입력하세요"
+            />
+          </label>
+
+          <div className="reading-type">
+            <span>읽는 방법</span>
+            <div className="reading-options" aria-label="읽는 방법 선택">
+              {READING_TYPES.map((item) => (
+                <button
+                  key={item}
+                  type="button"
+                  className={readingType === item ? "selected" : ""}
+                  onClick={() => setReadingType(item)}
+                >
+                  {item}
+                </button>
+              ))}
+            </div>
+          </div>
 
           <button type="submit" className="saveButton">
             저장
           </button>
         </form>
+
+        <div className="word-list-header">
+          <h2>저장한 단어</h2>
+          <span>{words.length}개</span>
+        </div>
+
+        {words.length === 0 ? (
+          <p className="empty-message">아직 저장한 단어가 없습니다.</p>
+        ) : (
+          <ul className="word-list">
+            {words.map((word) => (
+              <li key={word.id} className="word-item">
+                <div>
+                  <p className="yomigana">{word.yomigana}</p>
+                  <strong>{word.word}</strong>
+                  <p>{word.meanings}</p>
+                  <p className="word-reading-type">{word.readingType}</p>
+                </div>
+                <button
+                  type="button"
+                  className="delete-button"
+                  onClick={() => deleteWord(word.id)}
+                >
+                  삭제
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
       </section>
     </main>
   );

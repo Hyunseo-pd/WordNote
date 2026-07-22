@@ -217,7 +217,8 @@
 }
 
 .gender-options,
-.part-options {
+.part-options,
+.reading-options {
   display: flex;
   gap: 6px;
   overflow-x: auto;
@@ -230,7 +231,8 @@
 }
 
 .gender-options button,
-.part-options button {
+.part-options button,
+.reading-options button {
   flex: 0 0 auto;
   padding: 0 12px;
   border: 1px solid var(--border);
@@ -239,7 +241,8 @@
 }
 
 .gender-options button.selected,
-.part-options button.selected {
+.part-options button.selected,
+.reading-options button.selected {
   border-color: var(--accent);
   background: var(--accent);
   color: white;
@@ -285,6 +288,11 @@ button:hover {
   color: var(--accent);
   font-size: 15px;
   font-weight: 700;
+}
+
+.word-list .yomigana {
+  font-size: 12px;
+  font-weight: 500;
 }
 
 .word-search {
@@ -355,7 +363,8 @@ button:hover {
   margin-bottom: 6px;
 }
 
-.word-part {
+.word-part,
+.word-reading-type {
   color: var(--accent);
   font-size: 14px;
   font-weight: 700;
