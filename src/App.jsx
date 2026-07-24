@@ -1,7 +1,5 @@
 import { useState } from "react";
 import "./App.css";
-import { doc, setDoc, deleteDoc } from "firebase/firestore";
-import { db } from "./firebase";
 
 import GermanWordForm from "./GermanWordForm.jsx";
 import JapaneseWordForm from "./JapaneseWordForm.jsx";
@@ -11,13 +9,13 @@ const JAPANESE_STORAGE_KEY = "japanese-words";
 
 function App() {
   const [page, setPage] = useState("home");
-  const [Germanwords, setWordsGerman] = useState(() => {
+  const [Germanwords] = useState(() => {
     const savedWordsGerman = localStorage.getItem(GERMAN_STORAGE_KEY);
 
     return savedWordsGerman ? JSON.parse(savedWordsGerman) : [];
   });
 
-  const [Japanesewords, setWordsJapanese] = useState(() => {
+  const [Japanesewords] = useState(() => {
     const savedWordsJapanese = localStorage.getItem(JAPANESE_STORAGE_KEY);
 
     return savedWordsJapanese ? JSON.parse(savedWordsJapanese) : [];

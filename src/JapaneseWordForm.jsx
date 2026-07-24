@@ -44,18 +44,22 @@ function JapaneseWordForm({ setPage }) {
     event.preventDefault();
 
     const trimmedWord = word.trim();
+    const trimmedMeaning = meaning.trim();
 
-    setWords([
-      {
-        id: crypto.randomUUID(),
-        word: trimmedWord,
-        meanings: [meaning],
-        yomigana: yomigana,
-        readingType: readingType,
-        createdAt: new Date().toLocaleDateString("ko-KR"),
-      },
-      ...words,
-    ]);
+    if (!trimmedWord || !trimmedMeaning) {
+      return;
+    }
+
+    const newWord = {
+      id: crypto.randomUUID(),
+      word: trimmedWord,
+      meanings: [trimmedMeaning],
+      yomigana: yomigana.trim(),
+      readingType: readingType,
+      createdAt: new Date().toLocaleDateString("ko-KR"),
+    };
+
+    setWords((prevWords) => [newWord, ...prevWords]);
     setWord("");
     setMeaning("");
     setYomigana("");
@@ -63,7 +67,7 @@ function JapaneseWordForm({ setPage }) {
   }
 
   async function deleteWord(id) {
-    setWords(words.filter((item) => item.id !== id));
+    setWords((prevWords) => prevWords.filter((item) => item.id !== id));
     await deleteDoc(doc(db, "words", id));
   }
 

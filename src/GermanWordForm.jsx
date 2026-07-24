@@ -176,7 +176,7 @@ function GermanWordForm({ setPage }) {
     }));
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
 
     const trimmedWord = word.trim();
@@ -188,20 +188,20 @@ function GermanWordForm({ setPage }) {
         ? [{ preposition: preposition, caseType: caseType, meaning: meaning }]
         : [];
     const savedMeaning = [...meanings, ...currentMeaning];
-    if (!savedWord || !savedMeaning) {
+    if (!savedWord || savedMeaning.length === 0) {
       return;
     }
-    setWords([
-      {
-        id: crypto.randomUUID(),
-        word: savedWord,
-        meanings: savedMeaning,
-        part,
-        fields: { ...fields },
-        createdAt: new Date().toLocaleDateString("ko-KR"),
-      },
-      ...words,
-    ]);
+
+    const newWord = {
+      id: crypto.randomUUID(),
+      word: savedWord,
+      meanings: savedMeaning,
+      part,
+      fields: { ...fields },
+      createdAt: new Date().toLocaleDateString("ko-KR"),
+    };
+
+    setWords((prevWords) => [newWord, ...prevWords]);
     setWord("");
     setMeaning("");
     setPreposition("");
@@ -209,10 +209,12 @@ function GermanWordForm({ setPage }) {
     setMeanings([]);
     setPart("");
     setFields(INITIAL_FIELDS);
+    await setDoc(doc(db, "words", newWord.id), newWord);
   };
 
-  const deleteWord = (id) => {
-    setWords(words.filter((item) => item.id !== id));
+  const deleteWord = async (id) => {
+    setWords((prevWords) => prevWords.filter((item) => item.id !== id));
+    await deleteDoc(doc(db, "words", id));
   };
 
   const startEditingWord = (item) => {
