@@ -33,10 +33,12 @@ function JapaneseWordForm({ setPage }) {
         return searchableText.includes(normalizedSearchQuery);
       })
     : words;
+
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(words));
   }, [words]);
-  const handleSubmit = (event) => {
+
+  async function handleSubmit(event) {
     event.preventDefault();
 
     const trimmedWord = word.trim();
@@ -55,11 +57,13 @@ function JapaneseWordForm({ setPage }) {
     setWord("");
     setMeaning("");
     setYomigana("");
-  };
+    await setDoc(doc(db, "words", newWord.id), newWord);
+  }
 
-  const deleteWord = (id) => {
+  async function deleteWord(id) {
     setWords(words.filter((item) => item.id !== id));
-  };
+    await deleteDoc(doc(db, "words", id));
+  }
 
   const exportWords = () => {
     const json = JSON.stringify(words, null, 2);
