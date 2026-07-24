@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import "./App.css";
+import { doc, setDoc, deletedoc } from "firebase/firestore";
+import { db } from "./firebase";
 
 const STORAGE_KEY = "german-words";
 
