@@ -1,6 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import "./App.css";
-import { doc, setDoc, deleteDoc } from "firebase/firestore";
+import {
+  doc,
+  setDoc,
+  deleteDoc,
+  collection,
+  getDocs,
+} from "firebase/firestore";
 import { db } from "./firebase";
 
 const STORAGE_KEY = "japanese-words";
@@ -39,6 +45,24 @@ function JapaneseWordForm({ setPage }) {
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(words));
   }, [words]);
+  useEffect(() => {
+    async function loadWords() {
+      try {
+        const snapshot = await getDocs(collection(db, "words"));
+
+        const loadedWords = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+
+        setWords(loadedWords);
+      } catch (error) {
+        console.error("단어 불러오기 실패:", error);
+      }
+    }
+
+    loadWords();
+  }, []);
 
   async function handleSubmit(event) {
     event.preventDefault();
