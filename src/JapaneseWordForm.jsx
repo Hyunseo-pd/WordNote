@@ -20,10 +20,7 @@ function JapaneseWordForm({ setPage }) {
   const [readingType, setReadingType] = useState(READING_TYPES[0]);
   const [searchQuery, setSearchQuery] = useState("");
 
-  const [words, setWords] = useState(() => {
-    const savedWords = localStorage.getItem(STORAGE_KEY);
-    return savedWords ? JSON.parse(savedWords) : [];
-  });
+  const [words, setWords] = useState([]);
   const normalizedSearchQuery = searchQuery.trim().toLocaleLowerCase("ko-KR");
   const filteredWords = normalizedSearchQuery
     ? words.filter((item) => {
@@ -42,9 +39,23 @@ function JapaneseWordForm({ setPage }) {
       })
     : words;
 
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(words));
-  }, [words]);
+  async function migrateToFirebase() {
+    const savedWords = localStorage.getItem(STORAGE_KEY);
+
+    if (!savedWords) {
+      console.log("옮길 데이터 없음");
+      return;
+    }
+
+    const localWords = JSON.parse(savedWords);
+
+    for (const word of localWords) {
+      await setDoc(doc(db, "words", word.id), word);
+    }
+
+    console.log(`${localWords.length}개 이전 완료`);
+  }
+
   useEffect(() => {
     async function loadWords() {
       try {
@@ -177,7 +188,7 @@ function JapaneseWordForm({ setPage }) {
             </button>
           </div>
         </div>
-
+        <button onClick={migrateToFirebase}>Firebase로 이전</button>
         <div className="app-header">
           <p className="eyebrow">My Japanese dictionary</p>
           <h1>일본어 단어장</h1>
