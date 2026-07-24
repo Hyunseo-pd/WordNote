@@ -39,23 +39,6 @@ function JapaneseWordForm({ setPage }) {
       })
     : words;
 
-  async function migrateToFirebase() {
-    const savedWords = localStorage.getItem(STORAGE_KEY);
-
-    if (!savedWords) {
-      console.log("옮길 데이터 없음");
-      return;
-    }
-
-    const localWords = JSON.parse(savedWords);
-
-    for (const word of localWords) {
-      await setDoc(doc(db, "words", word.id), word);
-    }
-
-    console.log(`${localWords.length}개 이전 완료`);
-  }
-
   useEffect(() => {
     async function loadWords() {
       try {
@@ -188,7 +171,7 @@ function JapaneseWordForm({ setPage }) {
             </button>
           </div>
         </div>
-        <button onClick={migrateToFirebase}>Firebase로 이전</button>
+
         <div className="app-header">
           <p className="eyebrow">My Japanese dictionary</p>
           <h1>일본어 단어장</h1>
