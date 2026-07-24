@@ -1,6 +1,6 @@
 import { useState } from "react";
 import "./App.css";
-import { doc, setDoc, deletedoc } from "firebase/firestore";
+import { doc, setDoc, deleteDoc } from "firebase/firestore";
 import { db } from "./firebase";
 
 import GermanWordForm from "./GermanWordForm.jsx";
