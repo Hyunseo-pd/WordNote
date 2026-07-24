@@ -124,7 +124,6 @@ function JapaneseWordForm({ setPage }) {
           id: item.id || crypto.randomUUID(),
           meanings: Array.isArray(item.meanings) ? item.meanings : [],
         })),
-        await setDoc(doc(db, "words", item.id), item),
       );
       setSearchQuery("");
     } catch (error) {
