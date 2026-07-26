@@ -19,8 +19,8 @@ function JapaneseWordForm({ setPage }) {
   const [yomigana, setYomigana] = useState("");
   const [readingType, setReadingType] = useState(READING_TYPES[0]);
   const [searchQuery, setSearchQuery] = useState("");
-
   const [words, setWords] = useState([]);
+
   const normalizedSearchQuery = searchQuery.trim().toLocaleLowerCase("ko-KR");
   const filteredWords = normalizedSearchQuery
     ? words.filter((item) => {
@@ -42,7 +42,7 @@ function JapaneseWordForm({ setPage }) {
   useEffect(() => {
     async function loadWords() {
       try {
-        const snapshot = await getDocs(collection(db, "words"));
+        const snapshot = await getDocs(collection(db, "japanesewords"));
 
         const loadedWords = snapshot.docs.map((doc) => ({
           id: doc.id,
@@ -81,12 +81,12 @@ function JapaneseWordForm({ setPage }) {
     setWord("");
     setMeaning("");
     setYomigana("");
-    await setDoc(doc(db, "words", newWord.id), newWord);
+    await setDoc(doc(db, "japanesewords", newWord.id), newWord);
   }
 
   async function deleteWord(id) {
     setWords((prevWords) => prevWords.filter((item) => item.id !== id));
-    await deleteDoc(doc(db, "words", id));
+    await deleteDoc(doc(db, "japanesewords", id));
   }
 
   const exportWords = () => {
@@ -126,6 +126,14 @@ function JapaneseWordForm({ setPage }) {
         })),
       );
       setSearchQuery("");
+
+      await Promise.all(
+        importedWords.map((item) =>
+          setDoc(doc(db, "japanesewords", item.id || crypto.randomUUID()), {
+            ...item,
+          }),
+        ),
+      );
     } catch (error) {
       window.alert(
         "JSON 파일을 불러오지 못했습니다. 파일 형식을 확인해주세요.",
