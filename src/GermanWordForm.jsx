@@ -393,8 +393,69 @@ function GermanWordForm({ setPage }) {
               placeholder="단어를 입력하세요"
             />
           </label>
+          {(FIELD_CONTROLS[part] ?? []).map((field) =>
+            field.type === "options" ? (
+              <div key={field.name} className={field.fieldClassName}>
+                <span>{field.label}</span>
+                <div
+                  className={field.optionsClassName}
+                  aria-label={field.ariaLabel}
+                >
+                  {field.options.map((item) => (
+                    <button
+                      key={item.value}
+                      type="button"
+                      className={
+                        fields[field.name] === item.value ? "selected" : ""
+                      }
+                      onClick={() => updateField(field.name, item.value)}
+                    >
+                      {item.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ) : field.type === "participle" ? (
+              <label key={field.name} className="participle-field">
+                {field.label}
+                <div className="participle-input-row">
+                  <div className="auxiliary-options" aria-label="보조동사 선택">
+                    {["hat", "ist"].map((item) => (
+                      <label key={item} className="auxiliary-option">
+                        <input
+                          type="radio"
+                          name="auxiliary"
+                          checked={fields.auxiliary === item}
+                          onChange={() => updateField("auxiliary", item)}
+                        />
+                        <span>{item}</span>
+                      </label>
+                    ))}
+                  </div>
+                  <input
+                    value={fields[field.name] ?? ""}
+                    onChange={(event) =>
+                      updateField(field.name, event.target.value)
+                    }
+                    placeholder={field.placeholder}
+                  />
+                </div>
+              </label>
+            ) : (
+              <label key={field.name}>
+                {field.label}
+                <input
+                  value={fields[field.name] ?? ""}
+                  onChange={(event) =>
+                    updateField(field.name, event.target.value)
+                  }
+                  placeholder={field.placeholder}
+                />
+              </label>
+            ),
+          )}
           {isVerb && (
-            <label>
+            <label className="verb-usage">
               용법
               <div className="addpattern">
                 <input
@@ -459,67 +520,6 @@ function GermanWordForm({ setPage }) {
             </div>
           </div>
 
-          {(FIELD_CONTROLS[part] ?? []).map((field) =>
-            field.type === "options" ? (
-              <div key={field.name} className={field.fieldClassName}>
-                <span>{field.label}</span>
-                <div
-                  className={field.optionsClassName}
-                  aria-label={field.ariaLabel}
-                >
-                  {field.options.map((item) => (
-                    <button
-                      key={item.value}
-                      type="button"
-                      className={
-                        fields[field.name] === item.value ? "selected" : ""
-                      }
-                      onClick={() => updateField(field.name, item.value)}
-                    >
-                      {item.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            ) : field.type === "participle" ? (
-              <label key={field.name} className="participle-field">
-                {field.label}
-                <div className="participle-input-row">
-                  <div className="auxiliary-options" aria-label="보조동사 선택">
-                    {["hat", "ist"].map((item) => (
-                      <label key={item} className="auxiliary-option">
-                        <input
-                          type="radio"
-                          name="auxiliary"
-                          checked={fields.auxiliary === item}
-                          onChange={() => updateField("auxiliary", item)}
-                        />
-                        <span>{item}</span>
-                      </label>
-                    ))}
-                  </div>
-                  <input
-                    value={fields[field.name] ?? ""}
-                    onChange={(event) =>
-                      updateField(field.name, event.target.value)
-                    }
-                    placeholder={field.placeholder}
-                  />
-                </div>
-              </label>
-            ) : (
-              <label key={field.name}>
-                {field.label}
-                <input
-                  value={fields[field.name] ?? ""}
-                  onChange={(event) =>
-                    updateField(field.name, event.target.value)
-                  }
-                  placeholder={field.placeholder}
-                />
-              </label>
-            ),
-          )}
           <button type="submit" className="saveButton">
             저장
           </button>

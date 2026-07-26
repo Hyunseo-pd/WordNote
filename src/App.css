@@ -127,20 +127,17 @@
 }
 
 .word-form.verb-form {
-  grid-template-columns: 1fr 1fr 1fr auto;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
-.word-form.verb-form .wordInput {
-  grid-column: 1 / span 2;
-}
-
-.word-form.verb-form .wordInput + label {
-  grid-column: 1 / span 2;
+.wordInput {
+  grid-column: 1 / -1;
 }
 
 .word-form label,
 .gender-field,
-.part-field {
+.part-field,
+.reading-type {
   display: grid;
   gap: 8px;
   color: var(--text-h);
@@ -165,6 +162,11 @@
   outline-offset: 2px;
 }
 
+.verb-usage {
+  display: grid;
+  gap: 8px;
+  grid-column: 1 / span 2;
+}
 .addpattern {
   display: flex;
   gap: 6px;
@@ -172,7 +174,7 @@
 }
 
 .meanigList {
-  grid-column: 1 / span 2;
+  grid-column: 1 / -1;
 }
 
 .participle-field {
@@ -266,6 +268,7 @@ button {
 }
 
 .addMeaning {
+  grid-column: span 2;
   background: #7c3aed;
 }
 
@@ -519,6 +522,10 @@ button:hover {
   }
 
   .word-form.verb-form .wordInput {
+    grid-column: auto;
+  }
+
+  .word-form.verb-form .addMeaning {
     grid-column: auto;
   }
 
