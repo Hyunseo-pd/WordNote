@@ -9,17 +9,31 @@ const JAPANESE_STORAGE_KEY = "japanese-words";
 
 function App() {
   const [page, setPage] = useState("home");
+  const [Japanesewords, setJapanesewords] = useState([]);
   const [Germanwords] = useState(() => {
     const savedWordsGerman = localStorage.getItem(GERMAN_STORAGE_KEY);
 
     return savedWordsGerman ? JSON.parse(savedWordsGerman) : [];
   });
 
-  const [Japanesewords] = useState(() => {
-    const savedWordsJapanese = localStorage.getItem(JAPANESE_STORAGE_KEY);
+  useEffect(() => {
+    async function loadWords() {
+      try {
+        const snapshot = await getDocs(collection(db, "japanesewords"));
 
-    return savedWordsJapanese ? JSON.parse(savedWordsJapanese) : [];
-  });
+        const loadedWords = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+
+        setJapanesewords(loadedWords);
+      } catch (error) {
+        console.error("단어 불러오기 실패:", error);
+      }
+    }
+
+    loadWords();
+  }, []);
   if (page === "home") {
     return (
       <main className="app">
