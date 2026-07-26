@@ -1,6 +1,14 @@
 import { useState, useEffect } from "react";
 import "./App.css";
 
+import {
+  doc,
+  setDoc,
+  deleteDoc,
+  collection,
+  getDocs,
+} from "firebase/firestore";
+
 import GermanWordForm from "./GermanWordForm.jsx";
 import JapaneseWordForm from "./JapaneseWordForm.jsx";
 
