@@ -122,10 +122,7 @@ function GermanWordForm({ setPage }) {
   const [editingWordId, setEditingWordId] = useState(null);
   const [editingWord, setEditingWord] = useState(null);
 
-  const [words, setWords] = useState(() => {
-    const savedWords = localStorage.getItem(STORAGE_KEY);
-    return savedWords ? JSON.parse(savedWords) : [];
-  });
+  const [words, setWords] = useState([]);
 
   const isNoun = part === "명사";
   const isVerb = part === "동사";
@@ -153,9 +150,23 @@ function GermanWordForm({ setPage }) {
     : words;
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(words));
-  }, [words]);
+    async function loadWords() {
+      try {
+        const snapshot = await getDocs(collection(db, "germanwords"));
 
+        const loadedWords = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+
+        setWords(loadedWords);
+      } catch (error) {
+        console.error("단어 불러오기 실패:", error);
+      }
+    }
+
+    loadWords();
+  }, []);
   const selectPart = (selectedPart) => {
     setPart(selectedPart);
     setMeanings([]);
@@ -215,12 +226,12 @@ function GermanWordForm({ setPage }) {
     setMeanings([]);
     setPart("");
     setFields(INITIAL_FIELDS);
-    await setDoc(doc(db, "words", newWord.id), newWord);
+    await setDoc(doc(db, "germanwords", newWord.id), newWord);
   };
 
   const deleteWord = async (id) => {
     setWords((prevWords) => prevWords.filter((item) => item.id !== id));
-    await deleteDoc(doc(db, "words", id));
+    await deleteDoc(doc(db, "germanwords", id));
   };
 
   const startEditingWord = (item) => {
@@ -330,6 +341,14 @@ function GermanWordForm({ setPage }) {
         })),
       );
       setSearchQuery("");
+
+      await Promise.all(
+        importedWords.map((item) =>
+          setDoc(doc(db, "germanwords", item.id || crypto.randomUUID()), {
+            ...item,
+          }),
+        ),
+      );
     } catch (error) {
       window.alert(
         "JSON 파일을 불러오지 못했습니다. 파일 형식을 확인해주세요.",
