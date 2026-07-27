@@ -130,8 +130,12 @@
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
-.wordInput {
-  grid-column: 1 / -1;
+.word-form.standard-form > .wordInput {
+  grid-column: 1 / span 1;
+}
+.word-form.verb-form > .wordInput + label,
+div {
+  grid-column: 1;
 }
 
 .word-form label,
@@ -268,7 +272,7 @@ button {
 }
 
 .addMeaning {
-  grid-column: span 2;
+  grid-column: span 1;
   background: #7c3aed;
 }
 
