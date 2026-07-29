@@ -1,20 +1,12 @@
 import { useState, useEffect } from "react";
 import "./App.css";
 
-import {
-  doc,
-  setDoc,
-  deleteDoc,
-  collection,
-  getDocs,
-} from "firebase/firestore";
+import { collection, getDocs } from "firebase/firestore";
 import { db } from "./firebase";
 
+import GermanFlashcards from "./GermanFlashcards.jsx";
 import GermanWordForm from "./GermanWordForm.jsx";
 import JapaneseWordForm from "./JapaneseWordForm.jsx";
-
-const GERMAN_STORAGE_KEY = "german-words";
-const JAPANESE_STORAGE_KEY = "japanese-words";
 
 function App() {
   const [page, setPage] = useState("home");
@@ -78,6 +70,14 @@ function App() {
             <button
               className="language-button"
               type="button"
+              onClick={() => setPage("german-cards")}
+            >
+              <span>독일어 카드 보기</span>
+              <small>{Germanwords.length}개 학습</small>
+            </button>
+            <button
+              className="language-button"
+              type="button"
               onClick={() => setPage("japanese")}
             >
               <span>일본어 단어장</span>
@@ -91,6 +91,10 @@ function App() {
 
   if (page === "german") {
     return <GermanWordForm setPage={setPage} />;
+  }
+
+  if (page === "german-cards") {
+    return <GermanFlashcards setPage={setPage} />;
   }
 
   if (page === "japanese") {

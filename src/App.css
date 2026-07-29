@@ -493,6 +493,108 @@ button:hover {
   accent-color: var(--accent);
 }
 
+.flashcard-panel {
+  width: min(960px, 100%);
+}
+
+.flashcard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.flashcard {
+  position: relative;
+  width: 100%;
+  height: clamp(180px, 26vw, 240px);
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-h);
+  transform-style: preserve-3d;
+  transition: transform 180ms ease, border-color 180ms ease;
+}
+
+.flashcard:hover {
+  border-color: var(--accent);
+  filter: none;
+}
+
+.flashcard.is-flipped {
+  transform: rotateY(180deg);
+}
+
+.flashcard-face {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 8px;
+  padding: 20px;
+  border-radius: 8px;
+  background: var(--item-bg);
+  backface-visibility: hidden;
+  overflow: hidden;
+  text-align: center;
+}
+
+.flashcard-front strong {
+  max-width: 100%;
+  font-size: 30px;
+  line-height: 1.1;
+  overflow-wrap: anywhere;
+}
+
+.flashcard-front small {
+  color: var(--accent);
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.flashcard-back {
+  transform: rotateY(180deg);
+  place-items: stretch;
+  align-content: start;
+  gap: 10px;
+  overflow-y: auto;
+  text-align: left;
+}
+
+.flashcard-back strong {
+  color: var(--text-h);
+  font-size: 22px;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+.flashcard-meanings {
+  display: grid;
+  gap: 6px;
+  color: var(--text-h);
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.flashcard-detail {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.flashcard-part {
+  justify-self: start;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: white;
+  font-size: 13px;
+  font-weight: 700;
+}
+
 @media (max-width: 640px) {
   .app {
     padding: 24px 14px;
@@ -557,5 +659,13 @@ button:hover {
   .edit-case-options {
     overflow-x: auto;
     padding-bottom: 2px;
+  }
+
+  .flashcard-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .flashcard {
+    height: 190px;
   }
 }

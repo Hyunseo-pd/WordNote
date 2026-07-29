@@ -9,8 +9,6 @@ import {
 } from "firebase/firestore";
 import { db } from "./firebase";
 
-const STORAGE_KEY = "german-words";
-
 const GENDERS = [
   { label: "남성", value: "der" },
   { label: "여성", value: "die" },

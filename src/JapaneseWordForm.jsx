@@ -9,7 +9,6 @@ import {
 } from "firebase/firestore";
 import { db } from "./firebase";
 
-const STORAGE_KEY = "japanese-words";
 const READING_TYPES = ["음독", "훈독"];
 
 function JapaneseWordForm({ setPage }) {
