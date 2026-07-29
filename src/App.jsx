@@ -4,10 +4,9 @@ import "./App.css";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "./firebase";
 
-import GermanFlashcards from "./GermanFlashcards.jsx";
 import GermanWordForm from "./GermanWordForm.jsx";
 import JapaneseWordForm from "./JapaneseWordForm.jsx";
-
+import GermanFlashcards from "./GermanFlashcards.jsx";
 function App() {
   const [page, setPage] = useState("home");
   const [Japanesewords, setJapanesewords] = useState([]);
@@ -67,14 +66,7 @@ function App() {
               <span>독일어 단어장</span>
               <small>{Germanwords.length}개 저장됨</small>
             </button>
-            <button
-              className="language-button"
-              type="button"
-              onClick={() => setPage("german-cards")}
-            >
-              <span>독일어 카드 보기</span>
-              <small>{Germanwords.length}개 학습</small>
-            </button>
+
             <button
               className="language-button"
               type="button"

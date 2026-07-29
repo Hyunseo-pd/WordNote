@@ -9,6 +9,8 @@ import {
 } from "firebase/firestore";
 import { db } from "./firebase";
 
+import GermanFlashcards from "./GermanFlashcards.jsx";
+
 const GENDERS = [
   { label: "남성", value: "der" },
   { label: "여성", value: "die" },
@@ -396,6 +398,13 @@ function GermanWordForm({ setPage }) {
         <div className="app-header">
           <p className="eyebrow">My Deutsch dictionary</p>
           <h1>독일어 단어장</h1>
+          <button
+            className="flashcards-button"
+            type="button"
+            onClick={() => setPage("german-cards")}
+          >
+            카드 보기
+          </button>
         </div>
 
         <form

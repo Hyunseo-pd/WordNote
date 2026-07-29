@@ -36,7 +36,7 @@
 }
 
 .app-header h1 {
-  margin: 0;
+  margin-bottom: 12px;
 }
 
 .panel-actions {
@@ -516,7 +516,9 @@ button:hover {
   background: transparent;
   color: var(--text-h);
   transform-style: preserve-3d;
-  transition: transform 180ms ease, border-color 180ms ease;
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease;
 }
 
 .flashcard:hover {
