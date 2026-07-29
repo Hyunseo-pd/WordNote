@@ -496,14 +496,11 @@ button:hover {
 .flashcard-panel {
   width: min(960px, 100%);
 }
-
-.flashcard-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 14px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
+.flashcard-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
 }
 
 .flashcard {

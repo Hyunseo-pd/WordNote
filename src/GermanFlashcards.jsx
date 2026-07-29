@@ -158,27 +158,11 @@ function GermanFlashcards({ setPage }) {
           <h1>독일어 카드</h1>
         </div>
 
-        <div className="word-list-header">
-          <h2>학습 카드</h2>
-          <span>
-            {filteredWords.length} / {words.length}개
-          </span>
-        </div>
-
-        <label className="word-search">
-          <span>검색</span>
-          <input
-            value={searchQuery}
-            onChange={(event) => setSearchQuery(event.target.value)}
-            placeholder="단어, 뜻, 품사로 검색"
-          />
-        </label>
-
         {words.length === 0 ? (
           <p className="empty-message">아직 저장한 독일어 단어가 없습니다.</p>
         ) : (
-          <div key={item.id}>
-            <button onClick={prevCard}>previous</button>
+          <div key={item.id} className="flashcard-container">
+            <button onClick={prevCard}>◀</button>
             <button
               className={`flashcard ${isFlipped ? "is-flipped" : ""}`}
               type="button"
@@ -210,7 +194,7 @@ function GermanFlashcards({ setPage }) {
                 )}
               </span>
             </button>
-            <button onClick={nextCard}>next</button>
+            <button onClick={nextCard}>▶</button>
           </div>
         )}
       </section>
