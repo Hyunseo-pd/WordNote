@@ -118,7 +118,21 @@ function GermanFlashcards({ setPage }) {
       return nextIds;
     });
   };
+  const [currentIndex, setCurrentIndex] = useState(0);
 
+  const nextCard = () => {
+    setCurrentIndex((prev) => (prev + 1) % words.length);
+  };
+
+  const prevCard = () => {
+    setCurrentIndex((prev) => (prev - 1 + words.length) % words.length);
+  };
+  const item = words[currentIndex];
+  if (!item) return null;
+  const fields = item.fields ?? {};
+  const isFlipped = flippedIds.has(item.id);
+  const meanings = item.meanings ?? [];
+  const title = `${fields.gender ? `${fields.gender} ` : ""}${item.word}`;
   return (
     <main className="app">
       <section className="word-panel flashcard-panel">
@@ -162,56 +176,42 @@ function GermanFlashcards({ setPage }) {
 
         {words.length === 0 ? (
           <p className="empty-message">아직 저장한 독일어 단어가 없습니다.</p>
-        ) : filteredWords.length === 0 ? (
-          <p className="empty-message">검색 결과가 없습니다.</p>
         ) : (
-          <ul className="flashcard-grid">
-            {filteredWords.map((item) => {
-              const fields = item.fields ?? {};
-              const isFlipped = flippedIds.has(item.id);
-              const meanings = item.meanings ?? [];
-              const title = `${fields.gender ? `${fields.gender} ` : ""}${
-                item.word
-              }`;
-
-              return (
-                <li key={item.id}>
-                  <button
-                    className={`flashcard ${isFlipped ? "is-flipped" : ""}`}
-                    type="button"
-                    onClick={() => toggleCard(item.id)}
-                    aria-pressed={isFlipped}
-                  >
-                    <span className="flashcard-face flashcard-front">
-                      <strong>{title}</strong>
-                      {fields.plural && <small>-{fields.plural}</small>}
+          <div key={item.id}>
+            <button onClick={prevCard}>previous</button>
+            <button
+              className={`flashcard ${isFlipped ? "is-flipped" : ""}`}
+              type="button"
+              onClick={() => toggleCard(item.id)}
+              aria-pressed={isFlipped}
+            >
+              /*앞면*/
+              <span className="flashcard-face flashcard-front">
+                <strong>{title}</strong>
+                {fields.plural && <small>-{fields.plural}</small>}
+              </span>
+              /*뒷면*/
+              <span className="flashcard-face flashcard-back">
+                <strong>{title}</strong>
+                <span className="flashcard-meanings">
+                  {meanings.map((meaningItem, index) => (
+                    <span key={index}>
+                      {formatMeaningDisplay(meaningItem, item.part === "동사")}
                     </span>
-                    <span className="flashcard-face flashcard-back">
-                      <strong>{title}</strong>
-                      <span className="flashcard-meanings">
-                        {meanings.map((meaningItem, index) => (
-                          <span key={index}>
-                            {formatMeaningDisplay(
-                              meaningItem,
-                              item.part === "동사",
-                            )}
-                          </span>
-                        ))}
-                      </span>
-                      {getFieldRows(fields).map((field) => (
-                        <span key={field.name} className="flashcard-detail">
-                          {field.label}: {field.value}
-                        </span>
-                      ))}
-                      {item.part && (
-                        <span className="flashcard-part">{item.part}</span>
-                      )}
-                    </span>
-                  </button>
-                </li>
-              );
-            })}
-          </ul>
+                  ))}
+                </span>
+                {getFieldRows(fields).map((field) => (
+                  <span key={field.name} className="flashcard-detail">
+                    {field.label}: {field.value}
+                  </span>
+                ))}
+                {item.part && (
+                  <span className="flashcard-part">{item.part}</span>
+                )}
+              </span>
+            </button>
+            <button onClick={nextCard}>next</button>
+          </div>
         )}
       </section>
     </main>
