@@ -56,7 +56,7 @@ const getFieldRows = (fields = {}) =>
 function GermanFlashcards({ setPage }) {
   const [words, setWords] = useState([]);
   const [flippedIds, setFlippedIds] = useState(() => new Set());
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery] = useState("");
   const [sortMode, setSortMode] = useState("date");
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -109,10 +109,11 @@ function GermanFlashcards({ setPage }) {
     });
   }, [searchQuery, sortMode, words]);
 
-  useEffect(() => {
+  const selectSortMode = (selectedSortMode) => {
+    setSortMode(selectedSortMode);
     setCurrentIndex(0);
     setFlippedIds(new Set());
-  }, [searchQuery, sortMode]);
+  };
 
   const toggleCard = (id) => {
     setFlippedIds((prevIds) => {
@@ -173,14 +174,14 @@ function GermanFlashcards({ setPage }) {
             <button
               type="button"
               className={sortMode === "date" ? "selected" : ""}
-              onClick={() => setSortMode("date")}
+              onClick={() => selectSortMode("date")}
             >
               날짜순
             </button>
             <button
               type="button"
               className={sortMode === "alphabetical" ? "selected" : ""}
-              onClick={() => setSortMode("alphabetical")}
+              onClick={() => selectSortMode("alphabetical")}
             >
               알파벳순
             </button>
@@ -200,12 +201,12 @@ function GermanFlashcards({ setPage }) {
               onClick={() => toggleCard(item.id)}
               aria-pressed={isFlipped}
             >
-              /*앞면*/
+              {/* 앞면 */}
               <span className="flashcard-face flashcard-front">
                 <strong>{title}</strong>
                 {fields.plural && <small>-{fields.plural}</small>}
               </span>
-              /*뒷면*/
+              {/* 뒷면 */}
               <span className="flashcard-face flashcard-back">
                 <strong>{title}</strong>
                 <span className="flashcard-meanings">

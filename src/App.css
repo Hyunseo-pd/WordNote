@@ -50,6 +50,25 @@
 .language-list {
   display: grid;
   gap: 12px;
+  margin-top: 18px;
+}
+
+.add-notebook-button {
+  width: 100%;
+  margin-bottom: 12px;
+}
+
+.language-picker {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.language-choice-button {
+  border: 1px solid var(--border);
+  background: var(--input-bg);
+  color: var(--text-h);
 }
 
 .language-button {
@@ -123,6 +142,10 @@
 }
 
 .word-form.standard-form {
+  grid-template-columns: 1fr 1fr;
+}
+
+.word-form.basic-form {
   grid-template-columns: 1fr 1fr;
 }
 
@@ -655,6 +678,14 @@ button:hover {
   }
 
   .word-form {
+    grid-template-columns: 1fr;
+  }
+
+  .word-form.basic-form {
+    grid-template-columns: 1fr;
+  }
+
+  .language-picker {
     grid-template-columns: 1fr;
   }
 

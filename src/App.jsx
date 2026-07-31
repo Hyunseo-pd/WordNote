@@ -4,93 +4,119 @@ import "./App.css";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "./firebase";
 
-import GermanWordForm from "./GermanWordForm.jsx";
-import JapaneseWordForm from "./JapaneseWordForm.jsx";
+import BasicWordForm from "./BasicWordForm.jsx";
 import GermanFlashcards from "./GermanFlashcards.jsx";
+
+const LANGUAGES = [
+  {
+    id: "japanese",
+    label: "일본어",
+    collection: "japanesewords",
+    eyebrow: "My Japanese dictionary",
+  },
+  {
+    id: "german",
+    label: "독일어",
+    collection: "germanwords",
+    eyebrow: "My Deutsch dictionary",
+  },
+  {
+    id: "english",
+    label: "영어",
+    collection: "englishwords",
+    eyebrow: "My English dictionary",
+  },
+];
+
 function App() {
   const [page, setPage] = useState("home");
-  const [Japanesewords, setJapanesewords] = useState([]);
-  const [Germanwords, setGermanwords] = useState([]);
+  const [isLanguagePickerOpen, setIsLanguagePickerOpen] = useState(false);
+  const [wordCounts, setWordCounts] = useState({});
 
   useEffect(() => {
-    async function loadWords() {
+    if (page !== "home") {
+      return;
+    }
+
+    async function loadWordCounts() {
       try {
-        const snapshot = await getDocs(collection(db, "japanesewords"));
+        const loadedCounts = await Promise.all(
+          LANGUAGES.map(async (language) => {
+            const snapshot = await getDocs(collection(db, language.collection));
 
-        const loadedWords = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
+            return [language.id, snapshot.size];
+          }),
+        );
 
-        setJapanesewords(loadedWords);
+        setWordCounts(Object.fromEntries(loadedCounts));
       } catch (error) {
         console.error("단어 불러오기 실패:", error);
       }
     }
 
-    loadWords();
-  }, []);
-  useEffect(() => {
-    async function loadWords() {
-      try {
-        const snapshot = await getDocs(collection(db, "germanwords"));
+    loadWordCounts();
+  }, [page]);
 
-        const loadedWords = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
+  const selectedLanguage = LANGUAGES.find((language) => language.id === page);
 
-        setGermanwords(loadedWords);
-      } catch (error) {
-        console.error("단어 불러오기 실패:", error);
-      }
-    }
-
-    loadWords();
-  }, []);
   if (page === "home") {
     return (
       <main className="app">
         <section className="home-panel">
           <div className="app-header">
-            <p className="eyebrow">Language list</p>
-            <h1>언어 리스트</h1>
+            <p className="eyebrow">Language notebook</p>
+            <h1>단어장</h1>
           </div>
 
-          <div className="language-list">
-            <button
-              className="language-button"
-              type="button"
-              onClick={() => setPage("german")}
-            >
-              <span>독일어 단어장</span>
-              <small>{Germanwords.length}개 저장됨</small>
-            </button>
+          <button
+            className="add-notebook-button"
+            type="button"
+            onClick={() =>
+              setIsLanguagePickerOpen((currentValue) => !currentValue)
+            }
+          >
+            단어장 추가하기
+          </button>
 
-            <button
-              className="language-button"
-              type="button"
-              onClick={() => setPage("japanese")}
-            >
-              <span>일본어 단어장</span>
-              <small>{Japanesewords.length}개 저장됨</small>
-            </button>
+          {isLanguagePickerOpen && (
+            <div className="language-picker" aria-label="언어 선택">
+              {LANGUAGES.map((language) => (
+                <button
+                  key={language.id}
+                  className="language-choice-button"
+                  type="button"
+                  onClick={() => setPage(language.id)}
+                >
+                  {language.label}
+                </button>
+              ))}
+            </div>
+          )}
+
+          <div className="language-list">
+            {LANGUAGES.map((language) => (
+              <button
+                key={language.id}
+                className="language-button"
+                type="button"
+                onClick={() => setPage(language.id)}
+              >
+                <span>{language.label} 단어장</span>
+                <small>{wordCounts[language.id] ?? 0}개 저장됨</small>
+              </button>
+            ))}
           </div>
         </section>
       </main>
     );
   }
 
-  if (page === "german") {
-    return <GermanWordForm setPage={setPage} />;
-  }
-
   if (page === "german-cards") {
     return <GermanFlashcards setPage={setPage} />;
   }
 
-  if (page === "japanese") {
-    return <JapaneseWordForm setPage={setPage} />;
+  if (selectedLanguage) {
+    return <BasicWordForm language={selectedLanguage} setPage={setPage} />;
   }
 }
 export default App;

@@ -10,8 +10,6 @@ import {
 import { db } from "./firebase";
 import { sortWordsBySavedAt } from "./wordSorting";
 
-import GermanFlashcards from "./GermanFlashcards.jsx";
-
 const GENDERS = [
   { label: "남성", value: "der" },
   { label: "여성", value: "die" },
