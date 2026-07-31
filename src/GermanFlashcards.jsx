@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "./firebase";
+import { sortWords } from "./wordSorting";
 import "./App.css";
 
 const FIELD_LABELS = {
@@ -56,6 +57,8 @@ function GermanFlashcards({ setPage }) {
   const [words, setWords] = useState([]);
   const [flippedIds, setFlippedIds] = useState(() => new Set());
   const [searchQuery, setSearchQuery] = useState("");
+  const [sortMode, setSortMode] = useState("date");
+  const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
     async function loadWords() {
@@ -77,12 +80,13 @@ function GermanFlashcards({ setPage }) {
 
   const filteredWords = useMemo(() => {
     const normalizedQuery = searchQuery.trim().toLocaleLowerCase("ko-KR");
+    const sortedWords = sortWords(words, sortMode);
 
     if (!normalizedQuery) {
-      return words;
+      return sortedWords;
     }
 
-    return words.filter((item) => {
+    return sortedWords.filter((item) => {
       const searchableText = [
         item.word,
         item.part,
@@ -103,7 +107,12 @@ function GermanFlashcards({ setPage }) {
 
       return searchableText.includes(normalizedQuery);
     });
-  }, [searchQuery, words]);
+  }, [searchQuery, sortMode, words]);
+
+  useEffect(() => {
+    setCurrentIndex(0);
+    setFlippedIds(new Set());
+  }, [searchQuery, sortMode]);
 
   const toggleCard = (id) => {
     setFlippedIds((prevIds) => {
@@ -118,21 +127,22 @@ function GermanFlashcards({ setPage }) {
       return nextIds;
     });
   };
-  const [currentIndex, setCurrentIndex] = useState(0);
-
   const nextCard = () => {
-    setCurrentIndex((prev) => (prev + 1) % words.length);
+    setCurrentIndex((prev) => (prev + 1) % filteredWords.length);
   };
 
   const prevCard = () => {
-    setCurrentIndex((prev) => (prev - 1 + words.length) % words.length);
+    setCurrentIndex(
+      (prev) => (prev - 1 + filteredWords.length) % filteredWords.length,
+    );
   };
-  const item = words[currentIndex];
-  if (!item) return null;
-  const fields = item.fields ?? {};
-  const isFlipped = flippedIds.has(item.id);
-  const meanings = item.meanings ?? [];
-  const title = `${fields.gender ? `${fields.gender} ` : ""}${item.word}`;
+  const item = filteredWords[currentIndex];
+  const fields = item?.fields ?? {};
+  const isFlipped = item ? flippedIds.has(item.id) : false;
+  const meanings = item?.meanings ?? [];
+  const title = item
+    ? `${fields.gender ? `${fields.gender} ` : ""}${item.word}`
+    : "";
   return (
     <main className="app">
       <section className="word-panel flashcard-panel">
@@ -158,8 +168,29 @@ function GermanFlashcards({ setPage }) {
           <h1>독일어 카드</h1>
         </div>
 
+        <div className="flashcard-controls">
+          <div className="sort-options" aria-label="card sort">
+            <button
+              type="button"
+              className={sortMode === "date" ? "selected" : ""}
+              onClick={() => setSortMode("date")}
+            >
+              날짜순
+            </button>
+            <button
+              type="button"
+              className={sortMode === "alphabetical" ? "selected" : ""}
+              onClick={() => setSortMode("alphabetical")}
+            >
+              알파벳순
+            </button>
+          </div>
+        </div>
+
         {words.length === 0 ? (
           <p className="empty-message">아직 저장한 독일어 단어가 없습니다.</p>
+        ) : filteredWords.length === 0 ? (
+          <p className="empty-message">조건에 맞는 카드가 없습니다.</p>
         ) : (
           <div key={item.id} className="flashcard-container">
             <button onClick={prevCard}>◀</button>

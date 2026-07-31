@@ -8,6 +8,7 @@ import {
   getDocs,
 } from "firebase/firestore";
 import { db } from "./firebase";
+import { sortWordsBySavedAt } from "./wordSorting";
 
 import GermanFlashcards from "./GermanFlashcards.jsx";
 
@@ -159,7 +160,7 @@ function GermanWordForm({ setPage }) {
           ...doc.data(),
         }));
 
-        setWords(loadedWords);
+        setWords(sortWordsBySavedAt(loadedWords));
       } catch (error) {
         console.error("단어 불러오기 실패:", error);
       }
@@ -209,12 +210,14 @@ function GermanWordForm({ setPage }) {
       return;
     }
 
+    const savedAt = Date.now();
     const newWord = {
       id: crypto.randomUUID(),
       word: savedWord,
       meanings: savedMeaning,
       part,
       fields: { ...fields },
+      savedAt,
       createdAt: new Date().toLocaleDateString("ko-KR"),
     };
 
@@ -332,19 +335,27 @@ function GermanWordForm({ setPage }) {
         throw new Error("Uploaded JSON must be an array.");
       }
 
-      setWords(
-        importedWords.map((item) => ({
+      const normalizedWords = importedWords.map((item) => {
+        const parsedSavedAt = Date.parse(item.createdAt ?? "");
+
+        return {
           ...item,
           id: item.id || crypto.randomUUID(),
           meanings: Array.isArray(item.meanings) ? item.meanings : [],
           fields: item.fields ?? {},
-        })),
-      );
+          savedAt:
+            item.savedAt ??
+            item.createdAtMs ??
+            (Number.isNaN(parsedSavedAt) ? Date.now() : parsedSavedAt),
+        };
+      });
+
+      setWords(sortWordsBySavedAt(normalizedWords));
       setSearchQuery("");
 
       await Promise.all(
-        importedWords.map((item) =>
-          setDoc(doc(db, "germanwords", item.id || crypto.randomUUID()), {
+        normalizedWords.map((item) =>
+          setDoc(doc(db, "germanwords", item.id), {
             ...item,
           }),
         ),

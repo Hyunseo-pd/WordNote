@@ -496,6 +496,38 @@ button:hover {
 .flashcard-panel {
   width: min(960px, 100%);
 }
+
+.flashcard-controls {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 16px;
+}
+
+.sort-options {
+  display: flex;
+  gap: 6px;
+  padding: 4px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--input-bg);
+}
+
+.sort-options button {
+  width: auto;
+  height: 36px;
+  padding: 0 12px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--text-h);
+  font-size: 14px;
+}
+
+.sort-options button.selected {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: white;
+}
+
 .flashcard-container {
   display: flex;
   justify-content: center;
@@ -666,5 +698,17 @@ button:hover {
 
   .flashcard {
     height: 190px;
+  }
+
+  .flashcard-controls {
+    justify-content: stretch;
+  }
+
+  .sort-options {
+    width: 100%;
+  }
+
+  .sort-options button {
+    flex: 1 1 0;
   }
 }
