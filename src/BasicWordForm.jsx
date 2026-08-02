@@ -83,6 +83,8 @@ function BasicWordForm({ setPage, languageConfig }) {
   const [part, setPart] = useState("");
   const [fields, setFields] = useState(INITIAL_FIELDS);
   const [searchQuery, setSearchQuery] = useState("");
+  const [editingWordId, setEditingWordId] = useState(null);
+  const [editingWord, setEditingWord] = useState(null);
   const [words, setWords] = useState([]);
 
   const fieldControls = fieldControlMap[part] ?? [];
@@ -137,6 +139,82 @@ function BasicWordForm({ setPage, languageConfig }) {
       ...prevFields,
       [name]: value,
     }));
+  };
+
+  const getInitialFields = (item) => {
+    const currentFields = { ...(item.fields ?? {}) };
+
+    Object.values(fieldControlMap)
+      .flat()
+      .forEach((field) => {
+        if (currentFields[field.name] !== undefined) {
+          return;
+        }
+
+        const fallbackValue = getValueByPath(item, field.fallbackSource);
+
+        if (fallbackValue) {
+          currentFields[field.name] = fallbackValue;
+        }
+      });
+
+    return currentFields;
+  };
+
+  const startEditingWord = (item) => {
+    setEditingWordId(item.id);
+    setEditingWord({
+      word: item.word ?? "",
+      meaning: getMeaningText(item),
+      part: item.part ?? "",
+      fields: getInitialFields(item),
+    });
+  };
+
+  const cancelEditingWord = () => {
+    setEditingWordId(null);
+    setEditingWord(null);
+  };
+
+  const updateEditingWord = (name, value) => {
+    setEditingWord((prevWord) => ({
+      ...prevWord,
+      [name]: value,
+    }));
+  };
+
+  const updateEditingField = (name, value) => {
+    setEditingWord((prevWord) => ({
+      ...prevWord,
+      fields: {
+        ...(prevWord?.fields ?? {}),
+        [name]: value,
+      },
+    }));
+  };
+
+  const saveEditingWord = async (id) => {
+    const trimmedWord = editingWord.word.trim();
+    const trimmedMeaning = editingWord.meaning.trim();
+
+    if (!trimmedWord || !trimmedMeaning || !editingWord.part) {
+      return;
+    }
+
+    const updatedWord = {
+      ...words.find((item) => item.id === id),
+      word: trimmedWord,
+      meaning: trimmedMeaning,
+      meanings: [trimmedMeaning],
+      part: editingWord.part,
+      fields: { ...(editingWord.fields ?? {}) },
+    };
+
+    setWords((prevWords) =>
+      prevWords.map((item) => (item.id === id ? updatedWord : item)),
+    );
+    cancelEditingWord();
+    await setDoc(doc(db, language.collection, id), updatedWord);
   };
 
   async function handleSubmit(event) {
@@ -245,10 +323,21 @@ function BasicWordForm({ setPage, languageConfig }) {
     }
   };
 
-  const renderFieldControl = (field) => {
+  const renderFieldControl = (
+    field,
+    currentFields = fields,
+    onFieldChange = updateField,
+    inputNamePrefix = "field",
+    isEditing = false,
+  ) => {
     if (field.type === "options") {
       return (
-        <div key={field.name} className={field.fieldClassName ?? "part-field"}>
+        <div
+          key={field.name}
+          className={`${field.fieldClassName ?? "part-field"} ${
+            isEditing ? "edit-word-field" : ""
+          }`}
+        >
           <span>{field.label}</span>
           <div
             className={field.optionsClassName ?? "part-options"}
@@ -258,8 +347,10 @@ function BasicWordForm({ setPage, languageConfig }) {
               <button
                 key={item.value}
                 type="button"
-                className={fields[field.name] === item.value ? "selected" : ""}
-                onClick={() => updateField(field.name, item.value)}
+                className={
+                  currentFields[field.name] === item.value ? "selected" : ""
+                }
+                onClick={() => onFieldChange(field.name, item.value)}
               >
                 {item.label}
               </button>
@@ -271,7 +362,10 @@ function BasicWordForm({ setPage, languageConfig }) {
 
     if (field.type === "participle") {
       return (
-        <label key={field.name} className="participle-field">
+        <label
+          key={field.name}
+          className={`participle-field ${isEditing ? "edit-word-field" : ""}`}
+        >
           {field.label}
           <div className="participle-input-row">
             <div className="auxiliary-options" aria-label="보조동사 선택">
@@ -279,17 +373,19 @@ function BasicWordForm({ setPage, languageConfig }) {
                 <label key={item} className="auxiliary-option">
                   <input
                     type="radio"
-                    name="auxiliary"
-                    checked={fields.auxiliary === item}
-                    onChange={() => updateField("auxiliary", item)}
+                    name={`${inputNamePrefix}-auxiliary`}
+                    checked={currentFields.auxiliary === item}
+                    onChange={() => onFieldChange("auxiliary", item)}
                   />
                   <span>{item}</span>
                 </label>
               ))}
             </div>
             <input
-              value={fields[field.name] ?? ""}
-              onChange={(event) => updateField(field.name, event.target.value)}
+              value={currentFields[field.name] ?? ""}
+              onChange={(event) =>
+                onFieldChange(field.name, event.target.value)
+              }
               placeholder={field.placeholder}
             />
           </div>
@@ -298,11 +394,11 @@ function BasicWordForm({ setPage, languageConfig }) {
     }
 
     return (
-      <label key={field.name}>
+      <label key={field.name} className={isEditing ? "edit-word-field" : ""}>
         {field.label}
         <input
-          value={fields[field.name] ?? ""}
-          onChange={(event) => updateField(field.name, event.target.value)}
+          value={currentFields[field.name] ?? ""}
+          onChange={(event) => onFieldChange(field.name, event.target.value)}
           placeholder={field.placeholder}
         />
       </label>
@@ -496,21 +592,112 @@ function BasicWordForm({ setPage, languageConfig }) {
         ) : (
           <ul className="word-list">
             {filteredWords.map((item) => {
+              const isEditing = editingWordId === item.id && editingWord;
+              const editingFieldControls =
+                fieldControlMap[editingWord?.part] ?? [];
+
               return (
                 <li key={item.id} className="word-item">
                   <div>
-                    {listDisplay.map((displayItem) =>
-                      renderListDisplayItem(item, displayItem),
+                    {isEditing ? (
+                      <>
+                        <label className="edit-word-field">
+                          단어
+                          <input
+                            value={editingWord.word}
+                            onChange={(event) =>
+                              updateEditingWord("word", event.target.value)
+                            }
+                          />
+                        </label>
+
+                        <label className="edit-word-field">
+                          뜻
+                          <input
+                            value={editingWord.meaning}
+                            onChange={(event) =>
+                              updateEditingWord("meaning", event.target.value)
+                            }
+                          />
+                        </label>
+
+                        <div className="part-field edit-word-field">
+                          <span>품사</span>
+                          <div className="part-options" aria-label="품사 선택">
+                            {partsOfSpeech.map((partItem) => (
+                              <button
+                                key={partItem}
+                                type="button"
+                                className={
+                                  editingWord.part === partItem
+                                    ? "selected"
+                                    : ""
+                                }
+                                onClick={() =>
+                                  setEditingWord((prevWord) => ({
+                                    ...prevWord,
+                                    part: partItem,
+                                  }))
+                                }
+                              >
+                                {partItem}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+
+                        {editingFieldControls.map((field) =>
+                          renderFieldControl(
+                            field,
+                            editingWord.fields ?? {},
+                            updateEditingField,
+                            `edit-${item.id}`,
+                            true,
+                          ),
+                        )}
+                      </>
+                    ) : (
+                      listDisplay.map((displayItem) =>
+                        renderListDisplayItem(item, displayItem),
+                      )
                     )}
                     <small>{item.createdAt}</small>
                   </div>
-                  <button
-                    type="button"
-                    className="delete-button"
-                    onClick={() => deleteWord(item.id)}
-                  >
-                    삭제
-                  </button>
+                  <div className="word-actions">
+                    {isEditing ? (
+                      <>
+                        <button
+                          type="button"
+                          className="edit-save-button"
+                          onClick={() => saveEditingWord(item.id)}
+                        >
+                          저장
+                        </button>
+                        <button
+                          type="button"
+                          className="edit-button"
+                          onClick={cancelEditingWord}
+                        >
+                          취소
+                        </button>
+                      </>
+                    ) : (
+                      <button
+                        type="button"
+                        className="edit-button"
+                        onClick={() => startEditingWord(item)}
+                      >
+                        수정
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      className="delete-button"
+                      onClick={() => deleteWord(item.id)}
+                    >
+                      삭제
+                    </button>
+                  </div>
                 </li>
               );
             })}

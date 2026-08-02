@@ -37,12 +37,14 @@ export const japaneseConfig = {
         name: "reading",
         label: "읽기",
         type: "text",
+        fallbackSource: "yomigana",
         placeholder: "읽는 방법을 입력하세요",
       },
       {
         name: "readingType",
         label: "읽기 유형",
         type: "options",
+        fallbackSource: "readingType",
         options: [
           { label: "음독", value: "음독" },
           { label: "훈독", value: "훈독" },
@@ -56,6 +58,7 @@ export const japaneseConfig = {
         name: "reading",
         label: "읽기",
         type: "text",
+        fallbackSource: "yomigana",
         placeholder: "읽는 방법을 입력하세요",
       },
       {
