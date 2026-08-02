@@ -4,16 +4,6 @@ import { db } from "./firebase";
 import { sortWords } from "./wordSorting";
 import "./App.css";
 
-const FIELD_LABELS = {
-  Imperfekt: "단순과거",
-  Präteritum: "단순과거",
-  perfekt: "과거분사",
-  partizip2: "과거분사",
-  auxiliary: "보조동사",
-  comparative: "비교급",
-  plural: "복수형",
-};
-
 const formatMeaningDisplay = (meaningItem, shouldShowUsage) => {
   if (typeof meaningItem === "string") {
     return meaningItem;
@@ -30,30 +20,40 @@ const formatMeaningDisplay = (meaningItem, shouldShowUsage) => {
   return usage ? `${usage}: ${meaningItem.meaning}` : meaningItem.meaning;
 };
 
-const getFieldRows = (fields = {}) =>
+const getFieldLabelMap = (fieldControls = {}) =>
+  Object.values(fieldControls)
+    .flat()
+    .reduce((labels, field) => {
+      labels[field.name] = field.label;
+
+      if (field.type === "participle") {
+        labels.auxiliary = "보조동사";
+      }
+
+      return labels;
+    }, {});
+
+const getFieldRows = (fields = {}, fieldLabelMap = {}) =>
   Object.entries(fields).flatMap(([name, value]) => {
-    if (!value || name === "gender") {
+    if (!value || ["gender", "plural", "auxiliary"].includes(name)) {
       return [];
     }
 
-    if (name === "partizip2" && fields.auxiliary) {
-      return [
-        {
-          name,
-          label: FIELD_LABELS[name] ?? name,
-          value: `${fields.auxiliary} ${value}`,
-        },
-      ];
-    }
-
-    if (name === "auxiliary") {
-      return [];
-    }
-
-    return [{ name, label: FIELD_LABELS[name] ?? name, value }];
+    return [
+      {
+        name,
+        label: fieldLabelMap[name] ?? name,
+        value:
+          name === "partizip2" && fields.auxiliary
+            ? `${fields.auxiliary} ${value}`
+            : value,
+      },
+    ];
   });
 
-function GermanFlashcards({ setPage }) {
+function Flashcards({ setPage, languageConfig }) {
+  const language = languageConfig;
+  const fieldLabelMap = getFieldLabelMap(language.fieldControls);
   const [words, setWords] = useState([]);
   const [flippedIds, setFlippedIds] = useState(() => new Set());
   const [searchQuery] = useState("");
@@ -63,7 +63,7 @@ function GermanFlashcards({ setPage }) {
   useEffect(() => {
     async function loadWords() {
       try {
-        const snapshot = await getDocs(collection(db, "germanwords"));
+        const snapshot = await getDocs(collection(db, language.collection));
         const loadedWords = snapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
@@ -76,7 +76,7 @@ function GermanFlashcards({ setPage }) {
     }
 
     loadWords();
-  }, []);
+  }, [language.collection]);
 
   const filteredWords = useMemo(() => {
     const normalizedQuery = searchQuery.trim().toLocaleLowerCase("ko-KR");
@@ -158,15 +158,15 @@ function GermanFlashcards({ setPage }) {
           <button
             className="back-button"
             type="button"
-            onClick={() => setPage("german")}
+            onClick={() => setPage(language.id)}
           >
             단어장 편집
           </button>
         </div>
 
         <div className="app-header">
-          <p className="eyebrow">Deutsch flashcards</p>
-          <h1>독일어 카드</h1>
+          <p className="eyebrow">{language.eyebrow}</p>
+          <h1>{languageConfig.label} 카드</h1>
         </div>
 
         <div className="flashcard-controls">
@@ -189,7 +189,9 @@ function GermanFlashcards({ setPage }) {
         </div>
 
         {words.length === 0 ? (
-          <p className="empty-message">아직 저장한 독일어 단어가 없습니다.</p>
+          <p className="empty-message">
+            아직 저장한 {language.label} 단어가 없습니다.
+          </p>
         ) : filteredWords.length === 0 ? (
           <p className="empty-message">조건에 맞는 카드가 없습니다.</p>
         ) : (
@@ -216,7 +218,7 @@ function GermanFlashcards({ setPage }) {
                     </span>
                   ))}
                 </span>
-                {getFieldRows(fields).map((field) => (
+                {getFieldRows(fields, fieldLabelMap).map((field) => (
                   <span key={field.name} className="flashcard-detail">
                     {field.label}: {field.value}
                   </span>
@@ -234,4 +236,4 @@ function GermanFlashcards({ setPage }) {
   );
 }
 
-export default GermanFlashcards;
+export default Flashcards;

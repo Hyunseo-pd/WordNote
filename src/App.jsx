@@ -1,36 +1,20 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import "./App.css";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "./firebase";
 
 import { LANGUAGE_CONFIGS } from "./language";
 import BasicWordForm from "./BasicWordForm.jsx";
-
-const LANGUAGES = [
-  {
-    id: "japanese",
-    label: "일본어",
-    collection: "japanesewords",
-    eyebrow: "My Japanese dictionary",
-  },
-  {
-    id: "german",
-    label: "독일어",
-    collection: "germanwords",
-    eyebrow: "My Deutsch dictionary",
-  },
-  {
-    id: "english",
-    label: "영어",
-    collection: "englishwords",
-    eyebrow: "My English dictionary",
-  },
-];
+import Flashcards from "./Flashcards.jsx";
 
 function App() {
   const [page, setPage] = useState("home");
   const [isLanguagePickerOpen, setIsLanguagePickerOpen] = useState(false);
   const [wordCounts, setWordCounts] = useState({});
+  const languages = useMemo(() => Object.values(LANGUAGE_CONFIGS), []);
+  const flashcardLanguageId = page.endsWith("-flashcards")
+    ? page.replace("-flashcards", "")
+    : "";
 
   useEffect(() => {
     if (page !== "home") {
@@ -40,7 +24,7 @@ function App() {
     async function loadWordCounts() {
       try {
         const loadedCounts = await Promise.all(
-          LANGUAGES.map(async (language) => {
+          languages.map(async (language) => {
             const snapshot = await getDocs(collection(db, language.collection));
 
             return [language.id, snapshot.size];
@@ -54,9 +38,10 @@ function App() {
     }
 
     loadWordCounts();
-  }, [page]);
+  }, [page, languages]);
 
-  const selectedLanguage = LANGUAGES.find((language) => language.id === page);
+  const selectedLanguage = LANGUAGE_CONFIGS[page];
+  const flashcardLanguage = LANGUAGE_CONFIGS[flashcardLanguageId];
 
   if (page === "home") {
     return (
@@ -79,7 +64,7 @@ function App() {
 
           {isLanguagePickerOpen && (
             <div className="language-picker" aria-label="언어 선택">
-              {LANGUAGES.map((language) => (
+              {languages.map((language) => (
                 <button
                   key={language.id}
                   className="language-choice-button"
@@ -93,7 +78,7 @@ function App() {
           )}
 
           <div className="language-list">
-            {LANGUAGES.map((language) => (
+            {languages.map((language) => (
               <button
                 key={language.id}
                 className="language-button"
@@ -109,13 +94,14 @@ function App() {
       </main>
     );
   }
-  if (page !== "home") {
-    const languageConfig = {
-      ...selectedLanguage,
-      ...(LANGUAGE_CONFIGS[page] ?? {}),
-    };
+  if (selectedLanguage) {
+    return (
+      <BasicWordForm setPage={setPage} languageConfig={selectedLanguage} />
+    );
+  }
 
-    return <BasicWordForm setPage={setPage} languageConfig={languageConfig} />;
+  if (flashcardLanguage) {
+    return <Flashcards setPage={setPage} languageConfig={flashcardLanguage} />;
   }
 }
 export default App;

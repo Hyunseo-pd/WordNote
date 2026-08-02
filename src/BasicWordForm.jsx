@@ -8,6 +8,7 @@ import {
   getDocs,
 } from "firebase/firestore";
 import { db } from "./firebase";
+
 import { sortWordsBySavedAt } from "./wordSorting";
 
 const INITIAL_FIELDS = {};
@@ -522,6 +523,13 @@ function BasicWordForm({ setPage, languageConfig }) {
         <div className="app-header">
           <p className="eyebrow">{language.eyebrow}</p>
           <h1>{language.label} 단어장</h1>
+          <button
+            className="flashcard-button"
+            type="button"
+            onClick={() => setPage(`${language.id}-flashcards`)}
+          >
+            플래시카드
+          </button>
         </div>
 
         <form className="word-form basic-form" onSubmit={handleSubmit}>
