@@ -11,6 +11,8 @@ function App() {
   const [page, setPage] = useState("home");
   const [isLanguagePickerOpen, setIsLanguagePickerOpen] = useState(false);
   const [wordCounts, setWordCounts] = useState({});
+  const [currentLanguages, setCurrentLanguages] = useState([]);
+  const [newLanguage, setNewLanguage] = useState(null);
 
   const languages = Object.values(LANGUAGE_CONFIGS);
 
@@ -28,7 +30,11 @@ function App() {
             return [language.id, snapshot.size];
           }),
         );
-
+        setCurrentLanguages(
+          Object.keys(Object.fromEntries(loadedCounts)).filter(
+            (languageId) => wordCounts[languageId] > 0,
+          ),
+        );
         setWordCounts(Object.fromEntries(loadedCounts));
       } catch (error) {
         console.error("단어 불러오기 실패:", error);
@@ -41,6 +47,21 @@ function App() {
   const languageId = page.replace("-flashcards", "");
   const selectedLanguage = LANGUAGE_CONFIGS[languageId];
 
+  const addLanguage = (languageId) => {
+    if (currentLanguages.includes(languageId)) {
+      alert("이미 추가된 단어장입니다.");
+      return;
+    } else {
+      setNewLanguage(languageId);
+      console.log(newLanguage);
+      console.log(currentLanguages);
+    }
+  };
+  const deleteLanguage = async (languageId) => {
+    if (!window.confirm("이 단어장을 삭제할까요?")) return;
+
+    // 해당 language 컬렉션의 문서 전부 삭제
+  };
   if (page === "home") {
     return (
       <main className="app">
@@ -67,7 +88,7 @@ function App() {
                   key={language.id}
                   className="language-choice-button"
                   type="button"
-                  onClick={() => setPage(language.id)}
+                  onClick={() => addLanguage(language.id)}
                 >
                   {language.label}
                 </button>
@@ -76,17 +97,29 @@ function App() {
           )}
 
           <div className="language-list">
-            {languages.map((language) => (
-              <button
-                key={language.id}
-                className="language-button"
-                type="button"
-                onClick={() => setPage(language.id)}
-              >
-                <span>{language.label} 단어장</span>
-                <small>{wordCounts[language.id] ?? 0}개 저장됨</small>
-              </button>
-            ))}
+            {currentLanguages.map((languageId) => {
+              const language = LANGUAGE_CONFIGS[languageId];
+              return (
+                <div key={languageId} className="language-item">
+                  <button
+                    key={languageId}
+                    className="language-button"
+                    type="button"
+                    onClick={() => setPage(languageId)}
+                  >
+                    <span>{language.label} 단어장</span>
+                    <small>{wordCounts[languageId] ?? 0}개 저장됨</small>
+                  </button>
+                  <button
+                    className="delete-language-button"
+                    type="button"
+                    onClick={() => deleteLanguage(languageId)}
+                  >
+                    삭제
+                  </button>
+                </div>
+              );
+            })}
           </div>
         </section>
       </main>

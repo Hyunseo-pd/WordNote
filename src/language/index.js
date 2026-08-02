@@ -33,4 +33,12 @@ export const LANGUAGE_CONFIGS = {
     eyebrow: "My English dictionary",
     ...defaultConfig,
   },
+
+  chinese: {
+    id: "chinese",
+    label: "중국어",
+    collection: "chinesewords",
+    eyebrow: "My Chinese dictionary",
+    ...defaultConfig,
+  },
 };
