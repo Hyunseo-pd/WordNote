@@ -11,10 +11,8 @@ function App() {
   const [page, setPage] = useState("home");
   const [isLanguagePickerOpen, setIsLanguagePickerOpen] = useState(false);
   const [wordCounts, setWordCounts] = useState({});
-  const languages = useMemo(() => Object.values(LANGUAGE_CONFIGS), []);
-  const flashcardLanguageId = page.endsWith("-flashcards")
-    ? page.replace("-flashcards", "")
-    : "";
+
+  const languages = Object.values(LANGUAGE_CONFIGS);
 
   useEffect(() => {
     if (page !== "home") {
@@ -40,8 +38,8 @@ function App() {
     loadWordCounts();
   }, [page, languages]);
 
-  const selectedLanguage = LANGUAGE_CONFIGS[page];
-  const flashcardLanguage = LANGUAGE_CONFIGS[flashcardLanguageId];
+  const languageId = page.replace("-flashcards", "");
+  const selectedLanguage = LANGUAGE_CONFIGS[languageId];
 
   if (page === "home") {
     return (
@@ -94,14 +92,13 @@ function App() {
       </main>
     );
   }
-  if (selectedLanguage) {
+
+  if (page.endsWith("-flashcards")) {
+    return <Flashcards setPage={setPage} languageConfig={selectedLanguage} />;
+  } else if (page !== "home") {
     return (
       <BasicWordForm setPage={setPage} languageConfig={selectedLanguage} />
     );
-  }
-
-  if (flashcardLanguage) {
-    return <Flashcards setPage={setPage} languageConfig={flashcardLanguage} />;
   }
 }
 export default App;
