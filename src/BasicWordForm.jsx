@@ -10,9 +10,21 @@ import {
 import { db } from "./firebase";
 import { sortWordsBySavedAt } from "./wordSorting";
 
-import GermanFlashcards from "./GermanFlashcards.jsx";
-
 const INITIAL_FIELDS = {};
+const DEFAULT_PARTS = ["명사", "동사", "형용사", "부사"];
+
+const getFieldLabelMap = (fieldControls = {}) =>
+  Object.values(fieldControls)
+    .flat()
+    .reduce((labels, field) => {
+      labels[field.name] = field.label;
+
+      if (field.type === "participle") {
+        labels.auxiliary = "보조동사";
+      }
+
+      return labels;
+    }, {});
 
 const getMeaningText = (item) => {
   if (typeof item.meaning === "string") {
@@ -32,14 +44,19 @@ const getMeaningText = (item) => {
 };
 
 function BasicWordForm({ setPage, languageConfig }) {
+  const language = languageConfig;
+  const partsOfSpeech = language.parts ?? DEFAULT_PARTS;
+  const fieldControlMap = language.fieldControls ?? {};
+  const fieldLabelMap = getFieldLabelMap(fieldControlMap);
   const fileInputRef = useRef(null);
   const [word, setWord] = useState("");
   const [meaning, setMeaning] = useState("");
   const [part, setPart] = useState("");
+  const [fields, setFields] = useState(INITIAL_FIELDS);
   const [searchQuery, setSearchQuery] = useState("");
   const [words, setWords] = useState([]);
 
-  const fieldControls = languageConfig.fieldControls[part] ?? [];
+  const fieldControls = fieldControlMap[part] ?? [];
 
   const normalizedSearchQuery = searchQuery.trim().toLocaleLowerCase("ko-KR");
   const filteredWords = normalizedSearchQuery
@@ -49,6 +66,7 @@ function BasicWordForm({ setPage, languageConfig }) {
           getMeaningText(item),
           item.part,
           item.createdAt,
+          ...Object.values(item.fields ?? {}),
         ]
           .filter(Boolean)
           .join(" ")
@@ -77,6 +95,18 @@ function BasicWordForm({ setPage, languageConfig }) {
     loadWords();
   }, [language.collection]);
 
+  const selectPart = (selectedPart) => {
+    setPart(selectedPart);
+    setFields(INITIAL_FIELDS);
+  };
+
+  const updateField = (name, value) => {
+    setFields((prevFields) => ({
+      ...prevFields,
+      [name]: value,
+    }));
+  };
+
   async function handleSubmit(event) {
     event.preventDefault();
 
@@ -94,7 +124,7 @@ function BasicWordForm({ setPage, languageConfig }) {
       meaning: trimmedMeaning,
       meanings: [trimmedMeaning],
       part,
-      fields: {},
+      fields: { ...fields },
       savedAt,
       createdAt: new Date().toLocaleDateString("ko-KR"),
     };
@@ -103,6 +133,7 @@ function BasicWordForm({ setPage, languageConfig }) {
     setWord("");
     setMeaning("");
     setPart("");
+    setFields(INITIAL_FIELDS);
     await setDoc(doc(db, language.collection, newWord.id), newWord);
   }
 
@@ -182,6 +213,90 @@ function BasicWordForm({ setPage, languageConfig }) {
     }
   };
 
+  const renderFieldControl = (field) => {
+    if (field.type === "options") {
+      return (
+        <div key={field.name} className={field.fieldClassName ?? "part-field"}>
+          <span>{field.label}</span>
+          <div
+            className={field.optionsClassName ?? "part-options"}
+            aria-label={field.ariaLabel}
+          >
+            {field.options.map((item) => (
+              <button
+                key={item.value}
+                type="button"
+                className={fields[field.name] === item.value ? "selected" : ""}
+                onClick={() => updateField(field.name, item.value)}
+              >
+                {item.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    if (field.type === "participle") {
+      return (
+        <label key={field.name} className="participle-field">
+          {field.label}
+          <div className="participle-input-row">
+            <div className="auxiliary-options" aria-label="보조동사 선택">
+              {["hat", "ist"].map((item) => (
+                <label key={item} className="auxiliary-option">
+                  <input
+                    type="radio"
+                    name="auxiliary"
+                    checked={fields.auxiliary === item}
+                    onChange={() => updateField("auxiliary", item)}
+                  />
+                  <span>{item}</span>
+                </label>
+              ))}
+            </div>
+            <input
+              value={fields[field.name] ?? ""}
+              onChange={(event) => updateField(field.name, event.target.value)}
+              placeholder={field.placeholder}
+            />
+          </div>
+        </label>
+      );
+    }
+
+    return (
+      <label key={field.name}>
+        {field.label}
+        <input
+          value={fields[field.name] ?? ""}
+          onChange={(event) => updateField(field.name, event.target.value)}
+          placeholder={field.placeholder}
+        />
+      </label>
+    );
+  };
+
+  const getDisplayFieldRows = (displayFields) =>
+    Object.entries(displayFields).flatMap(([name, value]) => {
+      if (!value || name === "gender" || name === "auxiliary") {
+        return [];
+      }
+
+      const fieldValue =
+        name === "partizip2" && displayFields.auxiliary
+          ? `${displayFields.auxiliary} ${value}`
+          : value;
+
+      return [
+        {
+          name,
+          label: fieldLabelMap[name] ?? name,
+          value: fieldValue,
+        },
+      ];
+    });
+
   return (
     <main className="app">
       <section className="word-panel">
@@ -245,18 +360,20 @@ function BasicWordForm({ setPage, languageConfig }) {
           <div className="part-field">
             <span>품사</span>
             <div className="part-options" aria-label="품사 선택">
-              {PARTS_OF_SPEECH.map((item) => (
+              {partsOfSpeech.map((item) => (
                 <button
                   key={item}
                   type="button"
                   className={part === item ? "selected" : ""}
-                  onClick={() => setPart(item)}
+                  onClick={() => selectPart(item)}
                 >
                   {item}
                 </button>
               ))}
             </div>
           </div>
+
+          {fieldControls.map(renderFieldControl)}
 
           <button type="submit" className="saveButton">
             저장
@@ -285,23 +402,37 @@ function BasicWordForm({ setPage, languageConfig }) {
           <p className="empty-message">검색 결과가 없습니다.</p>
         ) : (
           <ul className="word-list">
-            {filteredWords.map((item) => (
-              <li key={item.id} className="word-item">
-                <div>
-                  <strong>{item.word}</strong>
-                  <p>{getMeaningText(item)}</p>
-                  {item.part && <p className="word-part">{item.part}</p>}
-                  <small>{item.createdAt}</small>
-                </div>
-                <button
-                  type="button"
-                  className="delete-button"
-                  onClick={() => deleteWord(item.id)}
-                >
-                  삭제
-                </button>
-              </li>
-            ))}
+            {filteredWords.map((item) => {
+              const displayFields = item.fields ?? {};
+              const displayFieldRows = getDisplayFieldRows(displayFields);
+
+              return (
+                <li key={item.id} className="word-item">
+                  <div>
+                    <strong>
+                      {displayFields.gender ? `${displayFields.gender} ` : ""}
+                      {item.word}
+                      {displayFields.plural ? `-${displayFields.plural}` : ""}
+                    </strong>
+                    <p>{getMeaningText(item)}</p>
+                    {item.part && <p className="word-part">{item.part}</p>}
+                    {displayFieldRows.map((field) => (
+                      <p key={field.name} className="word-field">
+                        {field.label}: {field.value}
+                      </p>
+                    ))}
+                    <small>{item.createdAt}</small>
+                  </div>
+                  <button
+                    type="button"
+                    className="delete-button"
+                    onClick={() => deleteWord(item.id)}
+                  >
+                    삭제
+                  </button>
+                </li>
+              );
+            })}
           </ul>
         )}
       </section>

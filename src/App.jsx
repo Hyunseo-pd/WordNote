@@ -1,12 +1,6 @@
 import { useState, useEffect } from "react";
 import "./App.css";
-import {
-  doc,
-  setDoc,
-  deleteDoc,
-  collection,
-  getDocs,
-} from "firebase/firestore";
+import { collection, getDocs } from "firebase/firestore";
 import { db } from "./firebase";
 
 import { LANGUAGE_CONFIGS } from "./language";
@@ -116,7 +110,10 @@ function App() {
     );
   }
   if (page !== "home") {
-    const languageConfig = LANGUAGE_CONFIGS[page];
+    const languageConfig = {
+      ...selectedLanguage,
+      ...(LANGUAGE_CONFIGS[page] ?? {}),
+    };
 
     return <BasicWordForm setPage={setPage} languageConfig={languageConfig} />;
   }
