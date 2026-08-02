@@ -1,11 +1,16 @@
 import { useState, useEffect } from "react";
 import "./App.css";
-
-import { collection, getDocs } from "firebase/firestore";
+import {
+  doc,
+  setDoc,
+  deleteDoc,
+  collection,
+  getDocs,
+} from "firebase/firestore";
 import { db } from "./firebase";
 
+import { LANGUAGE_CONFIGS } from "./language";
 import BasicWordForm from "./BasicWordForm.jsx";
-import GermanFlashcards from "./GermanFlashcards.jsx";
 
 const LANGUAGES = [
   {
@@ -110,13 +115,10 @@ function App() {
       </main>
     );
   }
+  if (page !== "home") {
+    const languageConfig = LANGUAGE_CONFIGS[page];
 
-  if (page === "german-cards") {
-    return <GermanFlashcards setPage={setPage} />;
-  }
-
-  if (selectedLanguage) {
-    return <BasicWordForm language={selectedLanguage} setPage={setPage} />;
+    return <BasicWordForm setPage={setPage} languageConfig={languageConfig} />;
   }
 }
 export default App;

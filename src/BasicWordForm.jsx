@@ -1,10 +1,18 @@
 import { useEffect, useRef, useState } from "react";
 import "./App.css";
-import { doc, setDoc, deleteDoc, collection, getDocs } from "firebase/firestore";
+import {
+  doc,
+  setDoc,
+  deleteDoc,
+  collection,
+  getDocs,
+} from "firebase/firestore";
 import { db } from "./firebase";
 import { sortWordsBySavedAt } from "./wordSorting";
 
-const PARTS_OF_SPEECH = ["명사", "동사", "형용사", "부사"];
+import GermanFlashcards from "./GermanFlashcards.jsx";
+
+const INITIAL_FIELDS = {};
 
 const getMeaningText = (item) => {
   if (typeof item.meaning === "string") {
@@ -23,13 +31,15 @@ const getMeaningText = (item) => {
   return "";
 };
 
-function BasicWordForm({ language, setPage }) {
+function BasicWordForm({ setPage, languageConfig }) {
   const fileInputRef = useRef(null);
   const [word, setWord] = useState("");
   const [meaning, setMeaning] = useState("");
   const [part, setPart] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [words, setWords] = useState([]);
+
+  const fieldControls = languageConfig.fieldControls[part] ?? [];
 
   const normalizedSearchQuery = searchQuery.trim().toLocaleLowerCase("ko-KR");
   const filteredWords = normalizedSearchQuery
