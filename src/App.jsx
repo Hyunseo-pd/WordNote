@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import "./App.css";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "./firebase";
@@ -14,7 +14,14 @@ function App() {
   const [currentLanguages, setCurrentLanguages] = useState([]);
   const [newLanguage, setNewLanguage] = useState(null);
 
-  const languages = Object.values(LANGUAGE_CONFIGS);
+  const languages = useMemo(() => Object.values(LANGUAGE_CONFIGS), []);
+  const visibleLanguages = useMemo(() => {
+    if (!newLanguage || currentLanguages.includes(newLanguage)) {
+      return currentLanguages;
+    }
+
+    return [...currentLanguages, newLanguage];
+  }, [currentLanguages, newLanguage]);
 
   useEffect(() => {
     if (page !== "home") {
@@ -30,14 +37,17 @@ function App() {
             return [language.id, snapshot.size];
           }),
         );
+        const nextWordCounts = Object.fromEntries(loadedCounts);
+
         setCurrentLanguages(
-          Object.keys(Object.fromEntries(loadedCounts)).filter(
-            (languageId) => wordCounts[languageId] > 0,
+          Object.keys(nextWordCounts).filter(
+            (languageId) => nextWordCounts[languageId] > 0,
           ),
         );
-        setWordCounts(Object.fromEntries(loadedCounts));
+        setWordCounts(nextWordCounts);
+        setNewLanguage(null);
       } catch (error) {
-        console.error("단어 불러오기 실패:", error);
+        console.error("단어장 불러오기 실패:", error);
       }
     }
 
@@ -48,20 +58,21 @@ function App() {
   const selectedLanguage = LANGUAGE_CONFIGS[languageId];
 
   const addLanguage = (languageId) => {
-    if (currentLanguages.includes(languageId)) {
+    if (currentLanguages.includes(languageId) || newLanguage === languageId) {
       alert("이미 추가된 단어장입니다.");
       return;
-    } else {
-      setNewLanguage(languageId);
-      console.log(newLanguage);
-      console.log(currentLanguages);
     }
+
+    setNewLanguage(languageId);
+    setIsLanguagePickerOpen(false);
   };
-  const deleteLanguage = async (languageId) => {
+
+  const deleteLanguage = async () => {
     if (!window.confirm("이 단어장을 삭제할까요?")) return;
 
     // 해당 language 컬렉션의 문서 전부 삭제
   };
+
   if (page === "home") {
     return (
       <main className="app">
@@ -97,8 +108,10 @@ function App() {
           )}
 
           <div className="language-list">
-            {currentLanguages.map((languageId) => {
+            {visibleLanguages.map((languageId) => {
               const language = LANGUAGE_CONFIGS[languageId];
+              const isNewLanguage = languageId === newLanguage;
+
               return (
                 <div key={languageId} className="language-item">
                   <button
@@ -108,7 +121,11 @@ function App() {
                     onClick={() => setPage(languageId)}
                   >
                     <span>{language.label} 단어장</span>
-                    <small>{wordCounts[languageId] ?? 0}개 저장됨</small>
+                    <small>
+                      {isNewLanguage
+                        ? "새 단어장"
+                        : `${wordCounts[languageId] ?? 0}개 저장됨`}
+                    </small>
                   </button>
                   <button
                     className="delete-language-button"
@@ -134,4 +151,5 @@ function App() {
     );
   }
 }
+
 export default App;
