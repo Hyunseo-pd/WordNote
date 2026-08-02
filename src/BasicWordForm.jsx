@@ -440,9 +440,7 @@ function BasicWordForm({ setPage, languageConfig }) {
         <strong key={displayItem.source}>
           {prefix ? `${prefix} ` : ""}
           {value}
-          {suffix
-            ? `${displayItem.suffixPrefix ?? ""}${suffix}`
-            : ""}
+          {suffix ? `${displayItem.suffixPrefix ?? ""}${suffix}` : ""}
         </strong>
       );
     }
@@ -462,15 +460,14 @@ function BasicWordForm({ setPage, languageConfig }) {
     }
 
     if (displayItem.type === "fields") {
-      return getDisplayFieldRows(item.fields ?? {}, displayItem.exclude ?? [])
-        .map((field) => (
-          <p
-            key={field.name}
-            className={displayItem.className ?? "word-field"}
-          >
-            {field.label}: {field.value}
-          </p>
-        ));
+      return getDisplayFieldRows(
+        item.fields ?? {},
+        displayItem.exclude ?? [],
+      ).map((field) => (
+        <p key={field.name} className={displayItem.className ?? "word-field"}>
+          {field.label}: {field.value}
+        </p>
+      ));
     }
 
     const value = getTextValue(
