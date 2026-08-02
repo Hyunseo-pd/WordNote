@@ -54,5 +54,26 @@ export const germanConfig = {
 
   parts: ["명사", "동사", "형용사", "부사"],
 
+  listDisplay: [
+    {
+      type: "heading",
+      source: "word",
+      prefixField: "gender",
+      suffixField: "plural",
+      suffixPrefix: "-",
+    },
+    {
+      type: "meaning",
+    },
+    {
+      type: "part",
+    },
+    {
+      type: "fields",
+      exclude: ["gender", "plural", "auxiliary"],
+      className: "word-field",
+    },
+  ],
+
   fieldControls: FIELD_CONTROLS,
 };

@@ -4,6 +4,33 @@ export const japaneseConfig = {
 
   parts: ["명사", "동사", "형용사", "부사"],
 
+  listDisplay: [
+    {
+      type: "text",
+      source: "fields.reading",
+      fallbackSource: "yomigana",
+      className: "yomigana",
+    },
+    {
+      type: "heading",
+      source: "word",
+    },
+    {
+      type: "meaning",
+    },
+    {
+      type: "text",
+      source: "fields.readingType",
+      fallbackSource: "readingType",
+      className: "word-reading-type",
+    },
+    {
+      type: "fields",
+      exclude: ["reading", "readingType"],
+      className: "word-field",
+    },
+  ],
+
   fieldControls: {
     명사: [
       {

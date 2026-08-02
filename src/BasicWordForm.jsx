@@ -43,11 +43,40 @@ const getMeaningText = (item) => {
   return "";
 };
 
+const getValueByPath = (item, path) => {
+  if (!path) {
+    return "";
+  }
+
+  return path
+    .split(".")
+    .reduce(
+      (currentValue, key) =>
+        currentValue && typeof currentValue === "object"
+          ? currentValue[key]
+          : undefined,
+      item,
+    );
+};
+
+const getTextValue = (item, source, fallbackSource) => {
+  const value = getValueByPath(item, source);
+  const fallbackValue = getValueByPath(item, fallbackSource);
+
+  return value ?? fallbackValue ?? "";
+};
+
 function BasicWordForm({ setPage, languageConfig }) {
   const language = languageConfig;
   const partsOfSpeech = language.parts ?? DEFAULT_PARTS;
   const fieldControlMap = language.fieldControls ?? {};
   const fieldLabelMap = getFieldLabelMap(fieldControlMap);
+  const listDisplay = language.listDisplay ?? [
+    { type: "heading", source: "word" },
+    { type: "meaning" },
+    { type: "part" },
+    { type: "fields", exclude: ["gender", "auxiliary"] },
+  ];
   const fileInputRef = useRef(null);
   const [word, setWord] = useState("");
   const [meaning, setMeaning] = useState("");
@@ -67,6 +96,9 @@ function BasicWordForm({ setPage, languageConfig }) {
           item.part,
           item.createdAt,
           ...Object.values(item.fields ?? {}),
+          ...listDisplay.map((displayItem) =>
+            getTextValue(item, displayItem.source, displayItem.fallbackSource),
+          ),
         ]
           .filter(Boolean)
           .join(" ")
@@ -277,9 +309,9 @@ function BasicWordForm({ setPage, languageConfig }) {
     );
   };
 
-  const getDisplayFieldRows = (displayFields) =>
+  const getDisplayFieldRows = (displayFields, exclude = []) =>
     Object.entries(displayFields).flatMap(([name, value]) => {
-      if (!value || name === "gender" || name === "auxiliary") {
+      if (!value || exclude.includes(name)) {
         return [];
       }
 
@@ -296,6 +328,67 @@ function BasicWordForm({ setPage, languageConfig }) {
         },
       ];
     });
+
+  const renderListDisplayItem = (item, displayItem) => {
+    if (displayItem.type === "heading") {
+      const displayFields = item.fields ?? {};
+      const prefix = displayFields[displayItem.prefixField];
+      const suffix = displayFields[displayItem.suffixField];
+      const value = getTextValue(item, displayItem.source);
+
+      if (!value) {
+        return null;
+      }
+
+      return (
+        <strong key={displayItem.source}>
+          {prefix ? `${prefix} ` : ""}
+          {value}
+          {suffix
+            ? `${displayItem.suffixPrefix ?? ""}${suffix}`
+            : ""}
+        </strong>
+      );
+    }
+
+    if (displayItem.type === "meaning") {
+      const meaningText = getMeaningText(item);
+
+      return meaningText ? <p key="meaning">{meaningText}</p> : null;
+    }
+
+    if (displayItem.type === "part") {
+      return item.part ? (
+        <p key="part" className="word-part">
+          {item.part}
+        </p>
+      ) : null;
+    }
+
+    if (displayItem.type === "fields") {
+      return getDisplayFieldRows(item.fields ?? {}, displayItem.exclude ?? [])
+        .map((field) => (
+          <p
+            key={field.name}
+            className={displayItem.className ?? "word-field"}
+          >
+            {field.label}: {field.value}
+          </p>
+        ));
+    }
+
+    const value = getTextValue(
+      item,
+      displayItem.source,
+      displayItem.fallbackSource,
+    );
+
+    return value ? (
+      <p key={displayItem.source} className={displayItem.className}>
+        {value}
+      </p>
+    ) : null;
+  };
 
   return (
     <main className="app">
@@ -403,24 +496,12 @@ function BasicWordForm({ setPage, languageConfig }) {
         ) : (
           <ul className="word-list">
             {filteredWords.map((item) => {
-              const displayFields = item.fields ?? {};
-              const displayFieldRows = getDisplayFieldRows(displayFields);
-
               return (
                 <li key={item.id} className="word-item">
                   <div>
-                    <strong>
-                      {displayFields.gender ? `${displayFields.gender} ` : ""}
-                      {item.word}
-                      {displayFields.plural ? `-${displayFields.plural}` : ""}
-                    </strong>
-                    <p>{getMeaningText(item)}</p>
-                    {item.part && <p className="word-part">{item.part}</p>}
-                    {displayFieldRows.map((field) => (
-                      <p key={field.name} className="word-field">
-                        {field.label}: {field.value}
-                      </p>
-                    ))}
+                    {listDisplay.map((displayItem) =>
+                      renderListDisplayItem(item, displayItem),
+                    )}
                     <small>{item.createdAt}</small>
                   </div>
                   <button
