@@ -41,23 +41,21 @@ const getFieldLabelMap = (fieldControls = {}) =>
       return labels;
     }, {});
 
-const getFieldRows = (fields = {}, fieldLabelMap = {}) =>
-  Object.entries(fields).flatMap(([name, value]) => {
-    if (!value || ["gender", "plural", "auxiliary"].includes(name)) {
-      return [];
-    }
+const getValueByPath = (item, path) => {
+  if (!path) {
+    return "";
+  }
 
-    return [
-      {
-        name,
-        label: fieldLabelMap[name] ?? name,
-        value:
-          name === "partizip2" && fields.auxiliary
-            ? `${fields.auxiliary} ${value}`
-            : value,
-      },
-    ];
-  });
+  return path
+    .split(".")
+    .reduce(
+      (currentValue, key) =>
+        currentValue && typeof currentValue === "object"
+          ? currentValue[key]
+          : undefined,
+      item,
+    );
+};
 
 function Flashcards({ setPage, languageConfig }) {
   const language = languageConfig;
@@ -67,6 +65,51 @@ function Flashcards({ setPage, languageConfig }) {
   const [searchQuery] = useState("");
   const [sortMode, setSortMode] = useState("date");
   const [currentIndex, setCurrentIndex] = useState(0);
+
+  const listDisplay = language.listDisplay ?? [
+    { type: "heading", source: "word" },
+    { type: "meaning" },
+    { type: "part" },
+    { type: "fields", exclude: ["gender", "auxiliary"] },
+  ];
+
+  const getFieldRows = (fields = {}, fieldLabelMap = {}) =>
+    Object.entries(fields).flatMap(([name, value]) => {
+      if (!value || ["gender", "plural", "auxiliary"].includes(name)) {
+        return [];
+      }
+
+      return [
+        {
+          name,
+          label: fieldLabelMap[name] ?? name,
+          value:
+            name === "partizip2" && fields.auxiliary
+              ? `${fields.auxiliary} ${value}`
+              : value,
+        },
+      ];
+    });
+
+  const getDisplayFieldRows = (displayFields, exclude = []) =>
+    Object.entries(displayFields).flatMap(([name, value]) => {
+      if (!value || exclude.includes(name)) {
+        return [];
+      }
+
+      const fieldValue =
+        name === "partizip2" && displayFields.auxiliary
+          ? `${displayFields.auxiliary} ${value}`
+          : value;
+
+      return [
+        {
+          name,
+          label: fieldLabelMap[name] ?? name,
+          value: fieldValue,
+        },
+      ];
+    });
 
   useEffect(() => {
     async function loadWords() {
@@ -161,6 +204,61 @@ function Flashcards({ setPage, languageConfig }) {
   const title = item
     ? `${fields.gender ? `${fields.gender} ` : ""}${item.word}`
     : "";
+
+  const renderListDisplayItem = (item, displayItem) => {
+    if (displayItem.type === "heading") {
+      const displayFields = item.fields ?? {};
+      const prefix = displayFields[displayItem.prefixField];
+      const suffix = displayFields[displayItem.suffixField];
+      const value = getValueByPath(item, displayItem.source);
+
+      if (!value) {
+        return null;
+      }
+
+      return (
+        <strong key={displayItem.source}>
+          {prefix ? `${prefix} ` : ""}
+          {value}
+          {suffix ? `${displayItem.suffixPrefix ?? ""}${suffix}` : ""}
+        </strong>
+      );
+    }
+
+    if (displayItem.type === "meaning") {
+      const meaningText = item.meaning;
+
+      return meaningText ? <p key="meaning">{meaningText}</p> : null;
+    }
+
+    if (displayItem.type === "part") {
+      return item.part ? (
+        <p key="part" className="word-part">
+          {item.part}
+        </p>
+      ) : null;
+    }
+
+    if (displayItem.type === "fields") {
+      return getDisplayFieldRows(
+        item.fields ?? {},
+        displayItem.exclude ?? [],
+      ).map((field) => (
+        <p key={field.name} className={displayItem.className ?? "word-field"}>
+          {field.label}: {field.value}
+        </p>
+      ));
+    }
+
+    const value = getValueByPath(item, displayItem.source);
+
+    return value ? (
+      <p key={displayItem.source} className={displayItem.className}>
+        {value}
+      </p>
+    ) : null;
+  };
+
   return (
     <main className="app">
       <section className="word-panel flashcard-panel">
@@ -227,21 +325,8 @@ function Flashcards({ setPage, languageConfig }) {
               </span>
               {/* 뒷면 */}
               <span className="flashcard-face flashcard-back">
-                <strong>{title}</strong>
-                <span className="flashcard-meanings">
-                  {meanings.map((meaningItem, index) => (
-                    <span key={index}>
-                      {formatMeaningDisplay(meaningItem, item.part === "동사")}
-                    </span>
-                  ))}
-                </span>
-                {getFieldRows(fields, fieldLabelMap).map((field) => (
-                  <span key={field.name} className="flashcard-detail">
-                    {field.label}: {field.value}
-                  </span>
-                ))}
-                {item.part && (
-                  <span className="flashcard-part">{item.part}</span>
+                {listDisplay.map((displayItem) =>
+                  renderListDisplayItem(item, displayItem),
                 )}
               </span>
             </button>
