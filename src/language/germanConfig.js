@@ -36,6 +36,12 @@ const FIELD_CONTROLS = {
       type: "participle",
       placeholder: "Partizip II를 입력하세요",
     },
+    {
+      name: "usage",
+      label: "용법",
+      type: "text",
+      placeholder: "용법을 입력하세요",
+    },
   ],
 
   형용사: [
