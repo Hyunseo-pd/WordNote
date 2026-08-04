@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import "./App.css";
-import { collection, getDocs } from "firebase/firestore";
+import { collection, deleteDoc, getDocs } from "firebase/firestore";
 import { db } from "./firebase";
 
 import { LANGUAGE_CONFIGS } from "./language";
@@ -67,10 +67,35 @@ function App() {
     setIsLanguagePickerOpen(false);
   };
 
-  const deleteLanguage = async () => {
-    if (!window.confirm("이 단어장을 삭제할까요?")) return;
+  const deleteLanguage = async (languageId) => {
+    const language = LANGUAGE_CONFIGS[languageId];
 
-    // 해당 language 컬렉션의 문서 전부 삭제
+    if (!language || !window.confirm("이 단어장을 삭제할까요?")) {
+      return;
+    }
+
+    try {
+      const snapshot = await getDocs(collection(db, language.collection));
+
+      await Promise.all(snapshot.docs.map((doc) => deleteDoc(doc.ref)));
+
+      setCurrentLanguages((prevLanguages) =>
+        prevLanguages.filter(
+          (currentLanguageId) => currentLanguageId !== languageId,
+        ),
+      );
+      setWordCounts((prevCounts) => ({
+        ...prevCounts,
+        [languageId]: 0,
+      }));
+
+      if (newLanguage === languageId) {
+        setNewLanguage(null);
+      }
+    } catch (error) {
+      console.error("단어장 삭제 실패:", error);
+      window.alert("단어장을 삭제하지 못했습니다. 다시 시도해주세요.");
+    }
   };
 
   if (page === "home") {

@@ -8,7 +8,6 @@ export const japaneseConfig = {
     {
       type: "text",
       source: "fields.reading",
-      fallbackSource: "yomigana",
       className: "yomigana",
     },
     {
@@ -21,8 +20,12 @@ export const japaneseConfig = {
     {
       type: "text",
       source: "fields.readingType",
-      fallbackSource: "readingType",
       className: "word-reading-type",
+    },
+    {
+      type: "text",
+      source: "part",
+      className: "word-part",
     },
     {
       type: "fields",
@@ -37,14 +40,12 @@ export const japaneseConfig = {
         name: "reading",
         label: "읽기",
         type: "text",
-        fallbackSource: "yomigana",
         placeholder: "읽는 방법을 입력하세요",
       },
       {
         name: "readingType",
         label: "읽기 유형",
         type: "options",
-        fallbackSource: "readingType",
         options: [
           { label: "음독", value: "음독" },
           { label: "훈독", value: "훈독" },
@@ -58,7 +59,6 @@ export const japaneseConfig = {
         name: "reading",
         label: "읽기",
         type: "text",
-        fallbackSource: "yomigana",
         placeholder: "읽는 방법을 입력하세요",
       },
       {
@@ -75,6 +75,12 @@ export const japaneseConfig = {
     ],
 
     형용사: [
+      {
+        name: "reading",
+        label: "읽기",
+        type: "text",
+        placeholder: "읽는 방법을 입력하세요",
+      },
       {
         name: "adjectiveType",
         label: "형용사 유형",

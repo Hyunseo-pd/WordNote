@@ -406,9 +406,14 @@ button:hover {
   margin-bottom: 6px;
 }
 
-.word-part,
+.word-part {
+  color: #2563eb;
+  font-size: 14px;
+  font-weight: 700;
+}
+
 .word-reading-type {
-  color: var(--accent);
+  color: #7c3aed;
   font-size: 14px;
   font-weight: 700;
 }

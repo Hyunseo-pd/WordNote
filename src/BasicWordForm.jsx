@@ -60,13 +60,6 @@ const getValueByPath = (item, path) => {
     );
 };
 
-const getTextValue = (item, source, fallbackSource) => {
-  const value = getValueByPath(item, source);
-  const fallbackValue = getValueByPath(item, fallbackSource);
-
-  return value ?? fallbackValue ?? "";
-};
-
 function BasicWordForm({ setPage, languageConfig }) {
   const language = languageConfig;
   const partsOfSpeech = language.parts ?? DEFAULT_PARTS;
@@ -100,7 +93,7 @@ function BasicWordForm({ setPage, languageConfig }) {
           item.createdAt,
           ...Object.values(item.fields ?? {}),
           ...listDisplay.map((displayItem) =>
-            getTextValue(item, displayItem.source, displayItem.fallbackSource),
+            getValueByPath(item, displayItem.source),
           ),
         ]
           .filter(Boolean)
@@ -149,33 +142,13 @@ function BasicWordForm({ setPage, languageConfig }) {
     }));
   };
 
-  const getInitialFields = (item) => {
-    const currentFields = { ...(item.fields ?? {}) };
-
-    Object.values(fieldControlMap)
-      .flat()
-      .forEach((field) => {
-        if (currentFields[field.name] !== undefined) {
-          return;
-        }
-
-        const fallbackValue = getValueByPath(item, field.fallbackSource);
-
-        if (fallbackValue) {
-          currentFields[field.name] = fallbackValue;
-        }
-      });
-
-    return currentFields;
-  };
-
   const startEditingWord = (item) => {
     setEditingWordId(item.id);
     setEditingWord({
       word: item.word ?? "",
       meaning: getMeaningText(item),
       part: item.part ?? "",
-      fields: getInitialFields(item),
+      fields: { ...(item.fields ?? {}) },
     });
   };
 
@@ -437,7 +410,7 @@ function BasicWordForm({ setPage, languageConfig }) {
       const displayFields = item.fields ?? {};
       const prefix = displayFields[displayItem.prefixField];
       const suffix = displayFields[displayItem.suffixField];
-      const value = getTextValue(item, displayItem.source);
+      const value = getValueByPath(item, displayItem.source);
 
       if (!value) {
         return null;
@@ -477,11 +450,7 @@ function BasicWordForm({ setPage, languageConfig }) {
       ));
     }
 
-    const value = getTextValue(
-      item,
-      displayItem.source,
-      displayItem.fallbackSource,
-    );
+    const value = getValueByPath(item, displayItem.source);
 
     return value ? (
       <p key={displayItem.source} className={displayItem.className}>
