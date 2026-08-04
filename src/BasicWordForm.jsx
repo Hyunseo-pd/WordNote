@@ -567,7 +567,7 @@ function BasicWordForm({ setPage, languageConfig }) {
             </div>
           </div>
 
-          {fieldControls.map(renderFieldControl)}
+          {fieldControls.map((field) => renderFieldControl(field))}
 
           <button type="submit" className="saveButton">
             저장
