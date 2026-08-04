@@ -27,23 +27,6 @@ const getFieldLabelMap = (fieldControls = {}) =>
       return labels;
     }, {});
 
-const getMeaningText = (item) => {
-  if (typeof item.meaning === "string") {
-    return item.meaning;
-  }
-
-  if (Array.isArray(item.meanings)) {
-    return item.meanings
-      .map((meaningItem) =>
-        typeof meaningItem === "string" ? meaningItem : meaningItem?.meaning,
-      )
-      .filter(Boolean)
-      .join(", ");
-  }
-
-  return "";
-};
-
 const getValueByPath = (item, path) => {
   if (!path) {
     return "";
@@ -88,7 +71,7 @@ function BasicWordForm({ setPage, languageConfig }) {
     ? words.filter((item) => {
         const searchableText = [
           item.word,
-          getMeaningText(item),
+          item.meaning,
           item.part,
           item.createdAt,
           ...Object.values(item.fields ?? {}),
@@ -111,13 +94,14 @@ function BasicWordForm({ setPage, languageConfig }) {
 
         const loadedWords = snapshot.docs.map((doc) => {
           const data = doc.data();
-          const wordData = { ...data };
-          delete wordData.meanings;
-
           return {
             id: doc.id,
-            ...wordData,
-            meaning: wordData.meaning ?? getMeaningText(data),
+            word: data.word ?? "",
+            meaning: data.meaning ?? "",
+            part: data.part ?? "",
+            fields: data.fields ?? {},
+            savedAt: data.savedAt,
+            createdAt: data.createdAt,
           };
         });
 
@@ -146,7 +130,7 @@ function BasicWordForm({ setPage, languageConfig }) {
     setEditingWordId(item.id);
     setEditingWord({
       word: item.word ?? "",
-      meaning: getMeaningText(item),
+      meaning: item.meaning ?? "",
       part: item.part ?? "",
       fields: { ...(item.fields ?? {}) },
     });
@@ -182,12 +166,11 @@ function BasicWordForm({ setPage, languageConfig }) {
       return;
     }
 
-    const currentWordWithoutMeanings = {
-      ...(words.find((item) => item.id === id) ?? {}),
-    };
-    delete currentWordWithoutMeanings.meanings;
+    const currentWord = words.find((item) => item.id === id) ?? {};
     const updatedWord = {
-      ...currentWordWithoutMeanings,
+      id,
+      savedAt: currentWord.savedAt,
+      createdAt: currentWord.createdAt,
       word: trimmedWord,
       meaning: trimmedMeaning,
       part: editingWord.part,
@@ -265,17 +248,15 @@ function BasicWordForm({ setPage, languageConfig }) {
       }
 
       const normalizedWords = importedWords.map((item) => {
-        const wordData = { ...item };
-        delete wordData.meanings;
         const parsedSavedAt = Date.parse(item.createdAt ?? "");
-        const meaningText = getMeaningText(item);
 
         return {
-          ...wordData,
           id: item.id || crypto.randomUUID(),
-          meaning: item.meaning ?? meaningText,
+          word: item.word ?? "",
+          meaning: item.meaning ?? "",
           part: item.part ?? "",
           fields: item.fields ?? {},
+          createdAt: item.createdAt,
           savedAt:
             item.savedAt ??
             item.createdAtMs ??
@@ -426,7 +407,7 @@ function BasicWordForm({ setPage, languageConfig }) {
     }
 
     if (displayItem.type === "meaning") {
-      const meaningText = getMeaningText(item);
+      const meaningText = item.meaning;
 
       return meaningText ? <p key="meaning">{meaningText}</p> : null;
     }

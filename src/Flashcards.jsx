@@ -4,30 +4,6 @@ import { db } from "./firebase";
 import { sortWords } from "./wordSorting";
 import "./App.css";
 
-const formatMeaningDisplay = (meaningItem, shouldShowUsage) => {
-  if (typeof meaningItem === "string") {
-    return meaningItem;
-  }
-
-  if (!shouldShowUsage) {
-    return meaningItem.meaning;
-  }
-
-  const usage = [meaningItem.preposition, meaningItem.caseType]
-    .filter(Boolean)
-    .join("+");
-
-  return usage ? `${usage}: ${meaningItem.meaning}` : meaningItem.meaning;
-};
-
-const getMeaningItems = (item) => {
-  if (typeof item?.meaning === "string" && item.meaning) {
-    return [item.meaning];
-  }
-
-  return item?.meanings ?? [];
-};
-
 const getFieldLabelMap = (fieldControls = {}) =>
   Object.values(fieldControls)
     .flat()
@@ -99,14 +75,15 @@ function Flashcards({ setPage, languageConfig }) {
         const snapshot = await getDocs(collection(db, language.collection));
         const loadedWords = snapshot.docs.map((doc) => {
           const data = doc.data();
-          const wordData = { ...data };
-          delete wordData.meanings;
-          const [meaning] = getMeaningItems(data);
 
           return {
             id: doc.id,
-            ...wordData,
-            meaning: wordData.meaning ?? formatMeaningDisplay(meaning, false),
+            word: data.word ?? "",
+            meaning: data.meaning ?? "",
+            part: data.part ?? "",
+            fields: data.fields ?? {},
+            savedAt: data.savedAt,
+            createdAt: data.createdAt,
           };
         });
 
@@ -132,15 +109,6 @@ function Flashcards({ setPage, languageConfig }) {
         item.word,
         item.meaning,
         item.part,
-        ...getMeaningItems(item).flatMap((meaningItem) =>
-          typeof meaningItem === "string"
-            ? [meaningItem]
-            : [
-                meaningItem.preposition,
-                meaningItem.caseType,
-                meaningItem.meaning,
-              ],
-        ),
         ...Object.values(item.fields ?? {}),
       ]
         .filter(Boolean)
@@ -182,7 +150,6 @@ function Flashcards({ setPage, languageConfig }) {
   const item = filteredWords[currentIndex];
   const fields = item?.fields ?? {};
   const isFlipped = item ? flippedIds.has(item.id) : false;
-  const meanings = getMeaningItems(item);
   const title = item
     ? `${fields.gender ? `${fields.gender} ` : ""}${item.word}`
     : "";
