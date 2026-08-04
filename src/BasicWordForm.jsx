@@ -116,10 +116,17 @@ function BasicWordForm({ setPage, languageConfig }) {
       try {
         const snapshot = await getDocs(collection(db, language.collection));
 
-        const loadedWords = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
+        const loadedWords = snapshot.docs.map((doc) => {
+          const data = doc.data();
+          const wordData = { ...data };
+          delete wordData.meanings;
+
+          return {
+            id: doc.id,
+            ...wordData,
+            meaning: wordData.meaning ?? getMeaningText(data),
+          };
+        });
 
         setWords(sortWordsBySavedAt(loadedWords));
       } catch (error) {
@@ -202,11 +209,14 @@ function BasicWordForm({ setPage, languageConfig }) {
       return;
     }
 
+    const currentWordWithoutMeanings = {
+      ...(words.find((item) => item.id === id) ?? {}),
+    };
+    delete currentWordWithoutMeanings.meanings;
     const updatedWord = {
-      ...words.find((item) => item.id === id),
+      ...currentWordWithoutMeanings,
       word: trimmedWord,
       meaning: trimmedMeaning,
-      meanings: [trimmedMeaning],
       part: editingWord.part,
       fields: { ...(editingWord.fields ?? {}) },
     };
@@ -233,7 +243,6 @@ function BasicWordForm({ setPage, languageConfig }) {
       id: crypto.randomUUID(),
       word: trimmedWord,
       meaning: trimmedMeaning,
-      meanings: [trimmedMeaning],
       part,
       fields: { ...fields },
       savedAt,
@@ -283,18 +292,15 @@ function BasicWordForm({ setPage, languageConfig }) {
       }
 
       const normalizedWords = importedWords.map((item) => {
+        const wordData = { ...item };
+        delete wordData.meanings;
         const parsedSavedAt = Date.parse(item.createdAt ?? "");
         const meaningText = getMeaningText(item);
 
         return {
-          ...item,
+          ...wordData,
           id: item.id || crypto.randomUUID(),
           meaning: item.meaning ?? meaningText,
-          meanings: Array.isArray(item.meanings)
-            ? item.meanings
-            : meaningText
-              ? [meaningText]
-              : [],
           part: item.part ?? "",
           fields: item.fields ?? {},
           savedAt:
