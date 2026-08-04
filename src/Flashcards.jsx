@@ -73,24 +73,6 @@ function Flashcards({ setPage, languageConfig }) {
     { type: "fields", exclude: ["gender", "auxiliary"] },
   ];
 
-  const getFieldRows = (fields = {}, fieldLabelMap = {}) =>
-    Object.entries(fields).flatMap(([name, value]) => {
-      if (!value || ["gender", "plural", "auxiliary"].includes(name)) {
-        return [];
-      }
-
-      return [
-        {
-          name,
-          label: fieldLabelMap[name] ?? name,
-          value:
-            name === "partizip2" && fields.auxiliary
-              ? `${fields.auxiliary} ${value}`
-              : value,
-        },
-      ];
-    });
-
   const getDisplayFieldRows = (displayFields, exclude = []) =>
     Object.entries(displayFields).flatMap(([name, value]) => {
       if (!value || exclude.includes(name)) {

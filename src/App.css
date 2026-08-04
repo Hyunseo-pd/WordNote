@@ -631,24 +631,20 @@ button:hover {
   transform: rotateY(180deg);
   place-items: stretch;
   align-content: start;
-  gap: 10px;
+  gap: 5px;
   overflow-y: auto;
-  text-align: left;
+  text-align: middle;
 }
 
+.flashcard-back .yomigana {
+  font-size: 12px;
+  font-weight: 500;
+}
 .flashcard-back strong {
   color: var(--text-h);
-  font-size: 22px;
+  font-size: 30px;
   line-height: 1.2;
   overflow-wrap: anywhere;
-}
-
-.flashcard-meanings {
-  display: grid;
-  gap: 6px;
-  color: var(--text-h);
-  font-size: 16px;
-  font-weight: 700;
 }
 
 .flashcard-detail {
