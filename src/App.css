@@ -55,16 +55,35 @@
 
 .language-item {
   display: flex;
-  gap: 6px;
+  gap: 2px;
   align-items: center;
 }
 
-.delete-language-button {
-  width: 80px;
-  height: 40px;
+.menu {
+  background: none;
+  color: var(--text-h);
+  list-style: none;
+  cursor: pointer;
+  width: max-content;
+  white-space: nowrap;
+  height: 64px;
+  display: grid;
+  place-items: center;
+  border-radius: 6px;
+}
+
+.menu-dropdown {
+  width: max-content;
+}
+.menu-item-delete {
   background: var(--danger);
   cursor: pointer;
+  width: max-content;
+
+  color: white;
+  font-size: 14px;
 }
+
 .add-notebook-button {
   width: 100%;
   margin-bottom: 12px;

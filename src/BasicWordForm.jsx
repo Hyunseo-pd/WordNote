@@ -507,7 +507,7 @@ function BasicWordForm({ setPage, languageConfig }) {
             type="button"
             onClick={() => setPage(`${language.id}-flashcards`)}
           >
-            플래시카드
+            카드
           </button>
         </div>
 

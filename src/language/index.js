@@ -16,21 +16,21 @@ export const LANGUAGE_CONFIGS = {
     id: "japanese",
     label: "일본어",
     collection: "japanesewords",
-    eyebrow: "My Japanese dictionary",
+    eyebrow: "My Japanese Words",
     ...japaneseConfig,
   },
   german: {
     id: "german",
     label: "독일어",
     collection: "germanwords",
-    eyebrow: "My Deutsch dictionary",
+    eyebrow: "My Deutsch Words",
     ...germanConfig,
   },
   english: {
     id: "english",
     label: "영어",
     collection: "englishwords",
-    eyebrow: "My English dictionary",
+    eyebrow: "My English Words",
     ...defaultConfig,
   },
 
@@ -38,7 +38,7 @@ export const LANGUAGE_CONFIGS = {
     id: "chinese",
     label: "중국어",
     collection: "chinesewords",
-    eyebrow: "My Chinese dictionary",
+    eyebrow: "My Chinese Words",
     ...defaultConfig,
   },
 };

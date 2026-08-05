@@ -13,6 +13,7 @@ function App() {
   const [wordCounts, setWordCounts] = useState({});
   const [currentLanguages, setCurrentLanguages] = useState([]);
   const [newLanguage, setNewLanguage] = useState(null);
+  const [openedMenu, setOpenedMenu] = useState(null);
 
   const languages = useMemo(() => Object.values(LANGUAGE_CONFIGS), []);
   const visibleLanguages = useMemo(() => {
@@ -103,8 +104,8 @@ function App() {
       <main className="app">
         <section className="home-panel">
           <div className="app-header">
-            <p className="eyebrow">Language notebook</p>
-            <h1>단어장</h1>
+            <p className="eyebrow">My Language Mate</p>
+            <h1>LANGT</h1>
           </div>
 
           <button
@@ -114,7 +115,7 @@ function App() {
               setIsLanguagePickerOpen((currentValue) => !currentValue)
             }
           >
-            단어장 추가하기
+            언어 추가하기
           </button>
 
           {isLanguagePickerOpen && (
@@ -152,13 +153,32 @@ function App() {
                         : `${wordCounts[languageId] ?? 0}개 저장됨`}
                     </small>
                   </button>
+
                   <button
-                    className="delete-language-button"
                     type="button"
-                    onClick={() => deleteLanguage(languageId)}
+                    className="menu"
+                    onClick={() =>
+                      setOpenedMenu(
+                        openedMenu === language.id ? null : language.id,
+                      )
+                    }
                   >
-                    삭제
+                    ⋮
                   </button>
+                  {openedMenu === language.id && (
+                    <div className="menu-dropdown">
+                      <button
+                        type="button"
+                        className="menu-item-delete"
+                        onClick={() => {
+                          deleteLanguage(language.id);
+                          setOpenedMenu(null);
+                        }}
+                      >
+                        삭제
+                      </button>
+                    </div>
+                  )}
                 </div>
               );
             })}
