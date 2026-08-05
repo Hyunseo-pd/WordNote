@@ -366,8 +366,19 @@ function BasicWordForm({ setPage, languageConfig }) {
     );
   };
 
-  const getDisplayFieldRows = (displayFields, exclude = []) =>
-    Object.entries(displayFields).flatMap(([name, value]) => {
+  const getDisplayFieldRows = (displayFields, part, exclude = []) => {
+    const orderedFieldNames = (fieldControlMap[part] ?? [])
+      .flatMap((field) =>
+        field.type === "participle" ? ["auxiliary", field.name] : [field.name],
+      )
+      .filter((name, index, fieldNames) => fieldNames.indexOf(name) === index);
+    const remainingFieldNames = Object.keys(displayFields).filter(
+      (name) => !orderedFieldNames.includes(name),
+    );
+
+    return [...orderedFieldNames, ...remainingFieldNames].flatMap((name) => {
+      const value = displayFields[name];
+
       if (!value || exclude.includes(name)) {
         return [];
       }
@@ -385,6 +396,7 @@ function BasicWordForm({ setPage, languageConfig }) {
         },
       ];
     });
+  };
 
   const renderListDisplayItem = (item, displayItem) => {
     if (displayItem.type === "heading") {
@@ -423,6 +435,7 @@ function BasicWordForm({ setPage, languageConfig }) {
     if (displayItem.type === "fields") {
       return getDisplayFieldRows(
         item.fields ?? {},
+        item.part,
         displayItem.exclude ?? [],
       ).map((field) => (
         <p key={field.name} className={displayItem.className ?? "word-field"}>
