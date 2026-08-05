@@ -403,7 +403,7 @@ button:hover {
 
 .word-field {
   color: var(--muted);
-  font-size: 14px;
+  font-size: 12px;
 }
 
 .word-item small {
@@ -533,7 +533,7 @@ button:hover {
   align-content: center;
   gap: 8px;
   padding: 20px;
-  border-radius: 8px;
+  border-radius: 12px;
   background: var(--item-bg);
   backface-visibility: hidden;
   overflow: hidden;
@@ -557,9 +557,9 @@ button:hover {
   transform: rotateY(180deg);
   place-items: stretch;
   align-content: start;
-  gap: 5px;
+  gap: 2px;
   overflow-y: auto;
-  text-align: middle;
+  text-align: left;
 }
 
 .flashcard-back .yomigana {
@@ -576,16 +576,6 @@ button:hover {
 .flashcard-detail {
   color: var(--muted);
   font-size: 14px;
-}
-
-.flashcard-part {
-  justify-self: start;
-  padding: 3px 8px;
-  border-radius: 999px;
-  background: var(--accent);
-  color: white;
-  font-size: 13px;
-  font-weight: 700;
 }
 
 @media (max-width: 640px) {

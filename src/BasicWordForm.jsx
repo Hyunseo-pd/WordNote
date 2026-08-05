@@ -43,9 +43,13 @@ const getValueByPath = (item, path) => {
     );
 };
 
+const capitalizeFirstLetter = (value, locale = "de-DE") =>
+  value ? `${value.charAt(0).toLocaleUpperCase(locale)}${value.slice(1)}` : "";
+
 function BasicWordForm({ setPage, languageConfig }) {
   const language = languageConfig;
   const partsOfSpeech = language.parts ?? DEFAULT_PARTS;
+  const nounPart = partsOfSpeech[0];
   const fieldControlMap = language.fieldControls ?? {};
   const fieldLabelMap = getFieldLabelMap(fieldControlMap);
   const listDisplay = language.listDisplay ?? [
@@ -65,6 +69,10 @@ function BasicWordForm({ setPage, languageConfig }) {
   const [words, setWords] = useState([]);
 
   const fieldControls = fieldControlMap[part] ?? [];
+  const formatWordForPart = (value, selectedPart) =>
+    language.language === "de" && selectedPart === nounPart
+      ? capitalizeFirstLetter(value)
+      : value;
 
   const normalizedSearchQuery = searchQuery.trim().toLocaleLowerCase("ko-KR");
   const filteredWords = normalizedSearchQuery
@@ -167,11 +175,12 @@ function BasicWordForm({ setPage, languageConfig }) {
     }
 
     const currentWord = words.find((item) => item.id === id) ?? {};
+    const formattedWord = formatWordForPart(trimmedWord, editingWord.part);
     const updatedWord = {
       id,
       savedAt: currentWord.savedAt,
       createdAt: currentWord.createdAt,
-      word: trimmedWord,
+      word: formattedWord,
       meaning: trimmedMeaning,
       part: editingWord.part,
       fields: { ...(editingWord.fields ?? {}) },
@@ -195,9 +204,10 @@ function BasicWordForm({ setPage, languageConfig }) {
     }
 
     const savedAt = Date.now();
+    const formattedWord = formatWordForPart(trimmedWord, part);
     const newWord = {
       id: crypto.randomUUID(),
-      word: trimmedWord,
+      word: formattedWord,
       meaning: trimmedMeaning,
       part,
       fields: { ...fields },
@@ -252,7 +262,7 @@ function BasicWordForm({ setPage, languageConfig }) {
 
         return {
           id: item.id || crypto.randomUUID(),
-          word: item.word ?? "",
+          word: formatWordForPart(item.word ?? "", item.part ?? ""),
           meaning: item.meaning ?? "",
           part: item.part ?? "",
           fields: item.fields ?? {},

@@ -283,7 +283,6 @@ function Flashcards({ setPage, languageConfig }) {
               {/* 앞면 */}
               <span className="flashcard-face flashcard-front">
                 <strong>{title}</strong>
-                {fields.plural && <small>-{fields.plural}</small>}
               </span>
               {/* 뒷면 */}
               <span className="flashcard-face flashcard-back">
