@@ -16,7 +16,17 @@ const getFieldLabelMap = (fieldControls = {}) =>
 
       return labels;
     }, {});
+const getFieldOptions = (fieldControls = {}) => {
+  // Implementation for rendering field values based on language
+  const options = Object.values(fieldControls).flat();
 
+  return options.reduce((acc, field) => {
+    if (field.type === "options" && Array.isArray(field.options)) {
+      acc[field.name] = field.options;
+    }
+    return acc;
+  }, {});
+};
 const getValueByPath = (item, path) => {
   if (!path) {
     return "";
@@ -48,6 +58,10 @@ function Flashcards({ setPage, languageConfig }) {
     { type: "part" },
     { type: "fields", exclude: ["gender", "auxiliary"] },
   ];
+
+  const filteroptions = Object.values(
+    getFieldOptions(language.fieldControls),
+  ).flat();
 
   const getDisplayFieldRows = (displayFields, part, exclude = []) => {
     const orderedFieldNames = (language.fieldControls?.[part] ?? [])
@@ -247,6 +261,20 @@ function Flashcards({ setPage, languageConfig }) {
         </div>
 
         <div className="flashcard-controls">
+          <div className="dropdown">
+            <select defaultValue="all" aria-label="card filter">
+              <option value="all">전체</option>
+              <option value="verb">동사</option>
+              <option value="noun">명사</option>
+              <option value="adjective">형용사</option>
+              <option value="adverb">부사</option>
+              {filteroptions.map((optionItem) => (
+                <option key={optionItem.label} value={optionItem.label}>
+                  {optionItem.label}
+                </option>
+              ))}
+            </select>
+          </div>
           <div className="sort-options" aria-label="card sort">
             <button
               type="button"
