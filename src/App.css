@@ -670,6 +670,20 @@ button:hover {
     justify-content: stretch;
   }
 
+  .flashcard-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .flashcard-container .flashcard {
+    grid-column: 1 / -1;
+    grid-row: 1;
+  }
+
+  .flashcard-container > button:not(.flashcard) {
+    width: 100%;
+  }
+
   .sort-options {
     width: 100%;
   }
