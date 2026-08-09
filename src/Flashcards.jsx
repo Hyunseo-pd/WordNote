@@ -80,6 +80,22 @@ function Flashcards({ setPage, languageConfig }) {
       ];
     });
   };
+  useEffect(() => {
+    const lockOrientation = async () => {
+      try {
+        await screen.orientation.lock("landscape");
+      } catch (error) {
+        console.log("orientation lock 실패:", error);
+      }
+    };
+
+    lockOrientation();
+
+    return () => {
+      screen.orientation?.unlock();
+    };
+  }, []);
+  return <div className="flashcards">{/* 기존 카드 화면 */}</div>;
 
   useEffect(() => {
     async function loadWords() {
