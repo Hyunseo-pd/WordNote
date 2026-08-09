@@ -80,9 +80,12 @@ function Flashcards({ setPage, languageConfig }) {
       ];
     });
   };
+
   useEffect(() => {
     const lockOrientation = async () => {
-      if (!screen.orientation?.lock) {
+      const isMobile = window.matchMedia("(max-width: 768px)").matches;
+
+      if (!isMobile || !screen.orientation?.lock) {
         return;
       }
       try {
@@ -98,8 +101,6 @@ function Flashcards({ setPage, languageConfig }) {
       screen.orientation?.unlock();
     };
   }, []);
-  return <div className="flashcards">{/* 기존 카드 화면 */}</div>;
-
   useEffect(() => {
     async function loadWords() {
       try {
