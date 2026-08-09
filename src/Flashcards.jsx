@@ -82,26 +82,6 @@ function Flashcards({ setPage, languageConfig }) {
   };
 
   useEffect(() => {
-    const lockOrientation = async () => {
-      const isMobile = window.matchMedia("(max-width: 768px)").matches;
-
-      if (!isMobile || !screen.orientation?.lock) {
-        return;
-      }
-      try {
-        await screen.orientation.lock("landscape");
-      } catch (error) {
-        console.log("orientation lock 실패:", error);
-      }
-    };
-
-    lockOrientation();
-
-    return () => {
-      screen.orientation?.unlock();
-    };
-  }, []);
-  useEffect(() => {
     async function loadWords() {
       try {
         const snapshot = await getDocs(collection(db, language.collection));
