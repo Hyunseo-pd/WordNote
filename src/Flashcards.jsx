@@ -82,6 +82,9 @@ function Flashcards({ setPage, languageConfig }) {
   };
   useEffect(() => {
     const lockOrientation = async () => {
+      if (!screen.orientation?.lock) {
+        return;
+      }
       try {
         await screen.orientation.lock("landscape");
       } catch (error) {
