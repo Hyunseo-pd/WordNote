@@ -80,32 +80,7 @@ function Flashcards({ setPage, languageConfig }) {
       ];
     });
   };
-  useEffect(() => {
-    let orientationLocked = false;
 
-    const lockOrientation = async () => {
-      const isMobile = window.matchMedia("(max-width: 768px)").matches;
-
-      if (!isMobile || !screen.orientation?.lock) {
-        return;
-      }
-
-      try {
-        await screen.orientation.lock("landscape");
-        orientationLocked = true;
-      } catch (error) {
-        console.log("orientation lock 실패:", error);
-      }
-    };
-
-    lockOrientation();
-
-    return () => {
-      if (orientationLocked) {
-        screen.orientation?.unlock?.();
-      }
-    };
-  }, []);
   useEffect(() => {
     async function loadWords() {
       try {

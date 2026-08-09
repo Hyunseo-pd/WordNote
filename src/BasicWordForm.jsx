@@ -67,7 +67,19 @@ function BasicWordForm({ setPage, languageConfig }) {
   const [editingWordId, setEditingWordId] = useState(null);
   const [editingWord, setEditingWord] = useState(null);
   const [words, setWords] = useState([]);
+  const startFlashcards = async () => {
+    try {
+      if (document.documentElement.requestFullscreen) {
+        await document.documentElement.requestFullscreen();
+      }
 
+      if (screen.orientation?.lock) {
+        await screen.orientation.lock("landscape");
+      }
+    } catch (error) {
+      console.log("화면 회전 실패:", error);
+    }
+  };
   const fieldControls = fieldControlMap[part] ?? [];
   const formatWordForPart = (value, selectedPart) =>
     language.language === "de" && selectedPart === nounPart
@@ -505,7 +517,10 @@ function BasicWordForm({ setPage, languageConfig }) {
           <button
             className="flashcard-button"
             type="button"
-            onClick={() => setPage(`${language.id}-flashcards`)}
+            onClick={() => {
+              setPage(`${language.id}-flashcards`);
+              startFlashcards();
+            }}
           >
             카드
           </button>
