@@ -51,7 +51,8 @@ function Flashcards({ setPage, languageConfig }) {
   const [filter, setFilter] = useState("all");
   const [sortMode, setSortMode] = useState("date");
   const [currentIndex, setCurrentIndex] = useState(0);
-
+  const [aiExample, setAiExample] = useState("");
+  const [isGeneratingExample, setIsGeneratingExample] = useState(false);
   const listDisplay = language.listDisplay ?? [
     { type: "heading", source: "word" },
     { type: "meaning" },
@@ -233,7 +234,37 @@ function Flashcards({ setPage, languageConfig }) {
       </p>
     ) : null;
   };
+  const generateExample = async () => {
+    if (!filteredWords[currentIndex]?.word.trim()) {
+      return;
+    }
 
+    try {
+      setIsGeneratingExample(true);
+
+      const response = await fetch("/api/generate-example", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          word: filteredWords[currentIndex].word.trim(),
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error ?? "예문 생성 실패");
+      }
+
+      setAiExample(data.example);
+    } catch (error) {
+      console.error("AI 예문 생성 실패:", error);
+    } finally {
+      setIsGeneratingExample(false);
+    }
+  };
   return (
     <main className="app">
       <section className="word-panel flashcard-panel">
@@ -306,36 +337,48 @@ function Flashcards({ setPage, languageConfig }) {
         ) : filteredWords.length === 0 ? (
           <p className="empty-message">조건에 맞는 카드가 없습니다.</p>
         ) : (
-          <div key={item.id} className="flashcard-container">
+          <div className="flashcard-wrapper">
+            <div key={item.id} className="flashcard-container">
+              <button
+                className="flashcard-nav-button"
+                type="button"
+                onClick={prevCard}
+              >
+                ◀
+              </button>
+              <button
+                className={`flashcard ${isFlipped ? "is-flipped" : ""}`}
+                type="button"
+                onClick={() => toggleCard(item.id)}
+                aria-pressed={isFlipped}
+              >
+                <span className="flashcard-face flashcard-front">
+                  <strong>{title}</strong>
+                </span>
+                <span className="flashcard-face flashcard-back">
+                  {listDisplay.map((displayItem) =>
+                    renderListDisplayItem(item, displayItem),
+                  )}
+                </span>
+              </button>
+              <button
+                className="flashcard-nav-button"
+                type="button"
+                onClick={nextCard}
+              >
+                ▶
+              </button>
+            </div>
             <button
-              className="flashcard-nav-button"
-              type="button"
-              onClick={prevCard}
+              className="example-sentence-button"
+              onClick={generateExample}
+              disabled={
+                isGeneratingExample || !filteredWords[currentIndex]?.word.trim()
+              }
             >
-              ◀
+              {isGeneratingExample ? "생성 중..." : "예시 문장"}
             </button>
-            <button
-              className={`flashcard ${isFlipped ? "is-flipped" : ""}`}
-              type="button"
-              onClick={() => toggleCard(item.id)}
-              aria-pressed={isFlipped}
-            >
-              <span className="flashcard-face flashcard-front">
-                <strong>{title}</strong>
-              </span>
-              <span className="flashcard-face flashcard-back">
-                {listDisplay.map((displayItem) =>
-                  renderListDisplayItem(item, displayItem),
-                )}
-              </span>
-            </button>
-            <button
-              className="flashcard-nav-button"
-              type="button"
-              onClick={nextCard}
-            >
-              ▶
-            </button>
+            {aiExample && <p className="ai-example">{aiExample}</p>}
           </div>
         )}
       </section>
