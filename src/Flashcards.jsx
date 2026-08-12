@@ -48,7 +48,8 @@ function Flashcards({ setPage, languageConfig }) {
   const fieldLabelMap = getFieldLabelMap(language.fieldControls);
   const [words, setWords] = useState([]);
   const [flippedIds, setFlippedIds] = useState(() => new Set());
-  const [searchQuery] = useState("");
+
+  const [filter, setFilter] = useState("all");
   const [sortMode, setSortMode] = useState("date");
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -123,27 +124,18 @@ function Flashcards({ setPage, languageConfig }) {
   }, [language.collection]);
 
   const filteredWords = useMemo(() => {
-    const normalizedQuery = searchQuery.trim().toLocaleLowerCase("ko-KR");
     const sortedWords = sortWords(words, sortMode);
 
-    if (!normalizedQuery) {
+    if (filter === "all") {
       return sortedWords;
     }
 
     return sortedWords.filter((item) => {
-      const searchableText = [
-        item.word,
-        item.meaning,
-        item.part,
-        ...Object.values(item.fields ?? {}),
-      ]
-        .filter(Boolean)
-        .join(" ")
-        .toLocaleLowerCase("ko-KR");
+      const filterValues = [item.part, ...Object.values(item.fields ?? {})];
 
-      return searchableText.includes(normalizedQuery);
+      return filterValues.includes(filter);
     });
-  }, [searchQuery, sortMode, words]);
+  }, [filter, sortMode, words]);
 
   const selectSortMode = (selectedSortMode) => {
     setSortMode(selectedSortMode);
@@ -262,19 +254,26 @@ function Flashcards({ setPage, languageConfig }) {
 
         <div className="flashcard-controls">
           <div className="dropdown">
-            <select defaultValue="all" aria-label="card filter">
+            <select
+              defaultValue="all"
+              aria-label="card filter"
+              onChange={(e) => setFilter(e.target.value)}
+            >
               <option value="all">전체</option>
-              <option value="verb">동사</option>
-              <option value="noun">명사</option>
-              <option value="adjective">형용사</option>
-              <option value="adverb">부사</option>
+              <option value="동사">동사</option>
+              <option value="명사">명사</option>
+              <option value="형용사">형용사</option>
+              <option value="부사">부사</option>
               {filteroptions.map((optionItem) => (
-                <option key={optionItem.label} value={optionItem.label}>
+                <option key={optionItem.label} value={optionItem.value}>
                   {optionItem.label}
                 </option>
               ))}
             </select>
           </div>
+          <span>
+            {filteredWords.length} / {words.length}개
+          </span>
           <div className="sort-options" aria-label="card sort">
             <button
               type="button"

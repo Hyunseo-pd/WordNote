@@ -62,6 +62,17 @@ export const japaneseConfig = {
         placeholder: "읽는 방법을 입력하세요",
       },
       {
+        name: "readingType",
+        label: "읽기 유형",
+        type: "options",
+        options: [
+          { label: "음독", value: "음독" },
+          { label: "훈독", value: "훈독" },
+        ],
+        ariaLabel: "읽기 유형 선택",
+        defaultValue: "훈독",
+      },
+      {
         name: "verbGroup",
         label: "동사 그룹",
         type: "options",
@@ -82,6 +93,17 @@ export const japaneseConfig = {
         placeholder: "읽는 방법을 입력하세요",
       },
       {
+        name: "readingType",
+        label: "읽기 유형",
+        type: "options",
+        options: [
+          { label: "음독", value: "음독" },
+          { label: "훈독", value: "훈독" },
+        ],
+        ariaLabel: "읽기 유형 선택",
+        defaultValue: "훈독",
+      },
+      {
         name: "adjectiveType",
         label: "형용사 유형",
         type: "options",
@@ -93,6 +115,18 @@ export const japaneseConfig = {
       },
     ],
 
-    부사: [],
+    부사: [
+      {
+        name: "readingType",
+        label: "읽기 유형",
+        type: "options",
+        options: [
+          { label: "음독", value: "음독" },
+          { label: "훈독", value: "훈독" },
+        ],
+        ariaLabel: "읽기 유형 선택",
+        defaultValue: "훈독",
+      },
+    ],
   },
 };
