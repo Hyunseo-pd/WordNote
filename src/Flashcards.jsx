@@ -17,7 +17,6 @@ const getFieldLabelMap = (fieldControls = {}) =>
       return labels;
     }, {});
 const getFieldOptions = (fieldControls = {}) => {
-  // Implementation for rendering field values based on language
   const options = Object.values(fieldControls).flat();
 
   return options.reduce((acc, field) => {
@@ -60,7 +59,7 @@ function Flashcards({ setPage, languageConfig }) {
     { type: "fields", exclude: ["gender", "auxiliary"] },
   ];
 
-  const filteroptions = Object.values(
+  const filterOptions = Object.values(
     getFieldOptions(language.fieldControls),
   ).flat();
 
@@ -143,6 +142,12 @@ function Flashcards({ setPage, languageConfig }) {
     setFlippedIds(new Set());
   };
 
+  const selectFilter = (selectedFilter) => {
+    setFilter(selectedFilter);
+    setCurrentIndex(0);
+    setFlippedIds(new Set());
+  };
+
   const toggleCard = (id) => {
     setFlippedIds((prevIds) => {
       const nextIds = new Set(prevIds);
@@ -165,7 +170,11 @@ function Flashcards({ setPage, languageConfig }) {
       (prev) => (prev - 1 + filteredWords.length) % filteredWords.length,
     );
   };
-  const item = filteredWords[currentIndex];
+  const safeCurrentIndex =
+    filteredWords.length === 0
+      ? 0
+      : Math.min(currentIndex, filteredWords.length - 1);
+  const item = filteredWords[safeCurrentIndex];
   const fields = item?.fields ?? {};
   const isFlipped = item ? flippedIds.has(item.id) : false;
   const title = item
@@ -255,23 +264,23 @@ function Flashcards({ setPage, languageConfig }) {
         <div className="flashcard-controls">
           <div className="dropdown">
             <select
-              defaultValue="all"
+              value={filter}
               aria-label="card filter"
-              onChange={(e) => setFilter(e.target.value)}
+              onChange={(e) => selectFilter(e.target.value)}
             >
               <option value="all">전체</option>
               <option value="동사">동사</option>
               <option value="명사">명사</option>
               <option value="형용사">형용사</option>
               <option value="부사">부사</option>
-              {filteroptions.map((optionItem) => (
+              {filterOptions.map((optionItem) => (
                 <option key={optionItem.label} value={optionItem.value}>
                   {optionItem.label}
                 </option>
               ))}
             </select>
           </div>
-          <span>
+          <span className="card-count">
             {filteredWords.length} / {words.length}개
           </span>
           <div className="sort-options" aria-label="card sort">
@@ -300,25 +309,35 @@ function Flashcards({ setPage, languageConfig }) {
           <p className="empty-message">조건에 맞는 카드가 없습니다.</p>
         ) : (
           <div key={item.id} className="flashcard-container">
-            <button onClick={prevCard}>◀</button>
+            <button
+              className="flashcard-nav-button"
+              type="button"
+              onClick={prevCard}
+            >
+              ◀
+            </button>
             <button
               className={`flashcard ${isFlipped ? "is-flipped" : ""}`}
               type="button"
               onClick={() => toggleCard(item.id)}
               aria-pressed={isFlipped}
             >
-              {/* 앞면 */}
               <span className="flashcard-face flashcard-front">
                 <strong>{title}</strong>
               </span>
-              {/* 뒷면 */}
               <span className="flashcard-face flashcard-back">
                 {listDisplay.map((displayItem) =>
                   renderListDisplayItem(item, displayItem),
                 )}
               </span>
             </button>
-            <button onClick={nextCard}>▶</button>
+            <button
+              className="flashcard-nav-button"
+              type="button"
+              onClick={nextCard}
+            >
+              ▶
+            </button>
           </div>
         )}
       </section>

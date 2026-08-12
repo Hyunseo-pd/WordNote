@@ -54,32 +54,43 @@
 }
 
 .language-item {
+  position: relative;
   display: flex;
-  gap: 2px;
+  gap: 8px;
   align-items: center;
 }
 
 .menu {
-  background: none;
+  flex: 0 0 44px;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 1px solid var(--border);
+  background: var(--input-bg);
   color: var(--text-h);
-  list-style: none;
-  cursor: pointer;
-  width: max-content;
-  white-space: nowrap;
-  height: 64px;
   display: grid;
   place-items: center;
   border-radius: 6px;
 }
 
 .menu-dropdown {
-  width: max-content;
+  position: absolute;
+  right: 0;
+  top: calc(100% + 6px);
+  z-index: 5;
+  min-width: 88px;
+  padding: 6px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--panel-bg);
+  box-shadow: var(--shadow);
 }
-.menu-item-delete {
-  background: var(--danger);
-  cursor: pointer;
-  width: max-content;
 
+.menu-item-delete {
+  width: 100%;
+  height: 36px;
+  padding: 0 12px;
+  background: var(--danger);
   color: white;
   font-size: 14px;
 }
@@ -187,8 +198,8 @@
 .word-form.standard-form > .wordInput {
   grid-column: 1 / span 1;
 }
-.word-form.verb-form > .wordInput + label,
-div {
+
+.word-form.verb-form > .wordInput + label {
   grid-column: 1;
 }
 
@@ -484,8 +495,64 @@ button:hover {
 
 .flashcard-controls {
   display: flex;
+  gap: 10px;
   justify-content: space-between;
+  align-items: center;
   margin-bottom: 16px;
+}
+
+.dropdown {
+  position: relative;
+  flex: 0 1 180px;
+}
+
+.dropdown::after {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  border-right: 2px solid var(--muted);
+  border-bottom: 2px solid var(--muted);
+  content: "";
+  pointer-events: none;
+  transform: translateY(-65%) rotate(45deg);
+}
+
+.dropdown select {
+  width: 100%;
+  height: 46px;
+  padding: 0 34px 0 14px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  appearance: none;
+  background: var(--input-bg);
+  color: var(--text-h);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.dropdown select:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.card-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 88px;
+  height: 46px;
+  padding: 0 14px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--item-bg);
+  color: var(--accent);
+  font-size: 14px;
+  font-weight: 800;
+  white-space: nowrap;
 }
 
 .sort-options {
@@ -518,6 +585,12 @@ button:hover {
   justify-content: center;
   align-items: center;
   gap: 12px;
+}
+
+.flashcard-nav-button {
+  flex: 0 0 44px;
+  width: 44px;
+  padding: 0;
 }
 
 .flashcard {
@@ -667,7 +740,17 @@ button:hover {
   }
 
   .flashcard-controls {
+    display: grid;
+    grid-template-columns: 1fr auto;
     justify-content: stretch;
+  }
+
+  .dropdown {
+    min-width: 0;
+  }
+
+  .card-count {
+    min-width: 72px;
   }
 
   .flashcard-container {
@@ -685,6 +768,7 @@ button:hover {
   }
 
   .sort-options {
+    grid-column: 1 / -1;
     width: 100%;
   }
 
