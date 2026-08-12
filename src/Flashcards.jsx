@@ -281,7 +281,7 @@ function Flashcards({ setPage, languageConfig }) {
             </select>
           </div>
           <span className="card-count">
-            {filteredWords.length} / {words.length}개
+            {currentIndex + 1} / {filteredWords.length} 개
           </span>
           <div className="sort-options" aria-label="card sort">
             <button
