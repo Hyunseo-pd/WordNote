@@ -138,6 +138,11 @@
   font-size: 14px;
   font-weight: 700;
 }
+.navigation-buttons {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
 
 .back-button {
   width: auto;
@@ -146,6 +151,15 @@
   border: 1px solid var(--border);
   background: var(--input-bg);
   color: var(--text-h);
+}
+
+.flashcard-button {
+  width: auto;
+  height: 36px;
+  padding: 0 12px;
+  border: 1px solid var(--accent);
+  background: var(--accent);
+  color: white;
 }
 
 .json-actions {

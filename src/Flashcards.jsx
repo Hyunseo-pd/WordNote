@@ -177,9 +177,7 @@ function Flashcards({ setPage, languageConfig }) {
   const item = filteredWords[safeCurrentIndex];
   const fields = item?.fields ?? {};
   const isFlipped = item ? flippedIds.has(item.id) : false;
-  const title = item
-    ? `${fields.gender ? `${fields.gender} ` : ""}${item.word}`
-    : "";
+  const title = item ? `${item.word}` : "";
 
   const renderListDisplayItem = (item, displayItem) => {
     if (displayItem.type === "heading") {

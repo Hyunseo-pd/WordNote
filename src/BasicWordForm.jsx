@@ -467,13 +467,24 @@ function BasicWordForm({ setPage, languageConfig }) {
     <main className="app">
       <section className="word-panel">
         <div className="panel-actions">
-          <button
-            className="back-button"
-            type="button"
-            onClick={() => setPage("home")}
-          >
-            처음으로
-          </button>
+          <div className="navigation-buttons">
+            <button
+              className="back-button"
+              type="button"
+              onClick={() => setPage("home")}
+            >
+              처음으로
+            </button>
+            <button
+              className="flashcard-button"
+              type="button"
+              onClick={() => {
+                setPage(`${language.id}-flashcards`);
+              }}
+            >
+              카드
+            </button>
+          </div>
           <div className="json-actions">
             <input
               ref={fileInputRef}
@@ -502,15 +513,6 @@ function BasicWordForm({ setPage, languageConfig }) {
         <div className="app-header">
           <p className="eyebrow">{language.eyebrow}</p>
           <h1>{language.label} 단어장</h1>
-          <button
-            className="flashcard-button"
-            type="button"
-            onClick={() => {
-              setPage(`${language.id}-flashcards`);
-            }}
-          >
-            카드
-          </button>
         </div>
 
         <form className="word-form basic-form" onSubmit={handleSubmit}>
