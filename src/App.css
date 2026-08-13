@@ -698,6 +698,28 @@ button:hover {
   color: var(--accent);
 }
 
+.example-sentence-button:disabled {
+  border-color: var(--border);
+  color: var(--muted);
+  cursor: not-allowed;
+  filter: none;
+}
+
+.ai-example {
+  width: 100%;
+  margin: 0;
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--item-bg);
+  color: var(--text-h);
+  font-size: 14px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+  box-sizing: border-box;
+  white-space: pre-wrap;
+}
+
 @media (max-width: 640px) {
   .app {
     padding: 24px 14px;

@@ -18,7 +18,7 @@ export default async function handler(req, res) {
   try {
     const response = await openai.responses.create({
       model: "gpt-5.6",
-      input: `${word}를 사용해서 자연스러운 독일어 예문 하나를 만들고 한국어 뜻도 알려줘.`,
+      input: `${word}를 사용해서 자연스러운 ${req.body.language || "영어"} 예문 하나를 만들고 한국어 뜻도 알려줘.`,
     });
 
     return res.status(200).json({

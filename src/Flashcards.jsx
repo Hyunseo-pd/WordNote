@@ -249,6 +249,7 @@ function Flashcards({ setPage, languageConfig }) {
         },
         body: JSON.stringify({
           word: filteredWords[currentIndex].word.trim(),
+          language: languageConfig.label,
         }),
       });
 
