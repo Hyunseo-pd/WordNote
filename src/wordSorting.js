@@ -32,7 +32,29 @@ export const sortWordsAlphabetically = (words) =>
     collator.compare(firstWord.word ?? "", secondWord.word ?? ""),
   );
 
-export const sortWords = (words, sortMode) =>
-  sortMode === "alphabetical"
-    ? sortWordsAlphabetically(words)
-    : sortWordsBySavedAt(words);
+export const sortWordsRandom = (words) => {
+  const shuffledWords = [...words];
+
+  for (let index = shuffledWords.length - 1; index > 0; index -= 1) {
+    const randomIndex = Math.floor(Math.random() * (index + 1));
+    [shuffledWords[index], shuffledWords[randomIndex]] = [
+      shuffledWords[randomIndex],
+      shuffledWords[index],
+    ];
+  }
+
+  return shuffledWords;
+};
+
+export const sortWords = (words, sortMode) => {
+  if (sortMode === "alphabetical") {
+    return sortWordsAlphabetically(words);
+  }
+
+  if (sortMode === "random") {
+    return sortWordsRandom(words);
+  }
+
+  return sortWordsBySavedAt(words);
+};
+

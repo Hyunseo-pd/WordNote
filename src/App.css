@@ -705,6 +705,30 @@ button:hover {
   filter: none;
 }
 
+.parameter-buttons {
+  display: flex;
+  justify-content: space-between;
+  gap: 6px;
+  margin-top: 8px;
+}
+.difficulty-level,
+.style-options,
+.length-options {
+  display: grid;
+  gap: 8px;
+  color: var(--text-h);
+  font-size: 15px;
+  font-weight: 700;
+}
+.difficulty-buttons,
+.style-buttons,
+.length-buttons {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+  white-space: nowrap;
+}
 .ai-example {
   width: 100%;
   margin: 0;

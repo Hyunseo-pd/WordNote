@@ -50,9 +50,14 @@ function Flashcards({ setPage, languageConfig }) {
 
   const [filter, setFilter] = useState("all");
   const [sortMode, setSortMode] = useState("date");
+  const [randomSortKey, setRandomSortKey] = useState(0);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [aiExample, setAiExample] = useState("");
   const [isGeneratingExample, setIsGeneratingExample] = useState(false);
+  const [exampleDifficulty, setExampleDifficulty] = useState("");
+  const [exampleLength, setExampleLength] = useState("");
+  const [exampleStyle, setExampleStyle] = useState("");
+
   const listDisplay = language.listDisplay ?? [
     { type: "heading", source: "word" },
     { type: "meaning" },
@@ -124,7 +129,7 @@ function Flashcards({ setPage, languageConfig }) {
   }, [language.collection]);
 
   const filteredWords = useMemo(() => {
-    const sortedWords = sortWords(words, sortMode);
+    const sortedWords = sortWords(words, sortMode, randomSortKey);
 
     if (filter === "all") {
       return sortedWords;
@@ -135,10 +140,13 @@ function Flashcards({ setPage, languageConfig }) {
 
       return filterValues.includes(filter);
     });
-  }, [filter, sortMode, words]);
+  }, [filter, randomSortKey, sortMode, words]);
 
   const selectSortMode = (selectedSortMode) => {
     setSortMode(selectedSortMode);
+    if (selectedSortMode === "random") {
+      setRandomSortKey((currentKey) => currentKey + 1);
+    }
     setCurrentIndex(0);
     setFlippedIds(new Set());
   };
@@ -328,6 +336,13 @@ function Flashcards({ setPage, languageConfig }) {
             >
               알파벳순
             </button>
+            <button
+              type="button"
+              className={sortMode === "random" ? "selected" : ""}
+              onClick={() => selectSortMode("random")}
+            >
+              랜덤
+            </button>
           </div>
         </div>
 
@@ -379,6 +394,29 @@ function Flashcards({ setPage, languageConfig }) {
             >
               {isGeneratingExample ? "생성 중..." : "예시 문장"}
             </button>
+            <div className="parameter-buttons">
+              <div className="difficulty-level">
+                <span>난이도</span>
+                <div className="difficulty-buttons">
+                  <button>쉬움</button>
+                  <button>어려움</button>
+                </div>
+              </div>
+              <div className="style-options">
+                <span>스타일</span>
+                <div className="style-buttons">
+                  <button>구어체</button>
+                  <button>문어체</button>
+                </div>
+              </div>
+              <div className="length-options">
+                <span>길이</span>
+                <div className="length-buttons">
+                  <button>짧게</button>
+                  <button>길게</button>
+                </div>
+              </div>
+            </div>
             {aiExample && <p className="ai-example">{aiExample}</p>}
           </div>
         )}
@@ -388,3 +426,5 @@ function Flashcards({ setPage, languageConfig }) {
 }
 
 export default Flashcards;
+
+
