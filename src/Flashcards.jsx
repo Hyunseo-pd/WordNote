@@ -42,7 +42,7 @@ const getValueByPath = (item, path) => {
     );
 };
 
-function Flashcards({ setPage, languageConfig }) {
+function Flashcards({ setPage, languageConfig, selectedWordId }) {
   const language = languageConfig;
   const fieldLabelMap = getFieldLabelMap(language.fieldControls);
   const [words, setWords] = useState([]);
@@ -57,6 +57,7 @@ function Flashcards({ setPage, languageConfig }) {
   const [exampleDifficulty, setExampleDifficulty] = useState("");
   const [exampleLength, setExampleLength] = useState("");
   const [exampleStyle, setExampleStyle] = useState("");
+
 
   const listDisplay = language.listDisplay ?? [
     { type: "heading", source: "word" },
@@ -128,6 +129,8 @@ function Flashcards({ setPage, languageConfig }) {
     loadWords();
   }, [language.collection]);
 
+
+
   const filteredWords = useMemo(() => {
     const sortedWords = sortWords(words, sortMode, randomSortKey);
 
@@ -156,6 +159,18 @@ function Flashcards({ setPage, languageConfig }) {
     setCurrentIndex(0);
     setFlippedIds(new Set());
   };
+
+  useEffect(() => {
+  if (!selectedWordId || words.length === 0) return;
+
+  const index = filteredWords.findIndex(
+    (word) => word.id === selectedWordId
+  );
+
+  if (index !== -1) {
+    setCurrentIndex(index);
+  }
+}, [selectedWordId, words]);
 
   const toggleCard = (id) => {
     setFlippedIds((prevIds) => {

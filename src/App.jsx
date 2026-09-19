@@ -14,6 +14,7 @@ function App() {
   const [currentLanguages, setCurrentLanguages] = useState([]);
   const [newLanguage, setNewLanguage] = useState(null);
   const [openedMenu, setOpenedMenu] = useState(null);
+  const [selectedWordId, setSelectedWordId] = useState(null);
 
   const languages = useMemo(() => Object.values(LANGUAGE_CONFIGS), []);
   const visibleLanguages = useMemo(() => {
@@ -189,10 +190,10 @@ function App() {
   }
 
   if (page.endsWith("-flashcards")) {
-    return <Flashcards setPage={setPage} languageConfig={selectedLanguage} />;
+    return <Flashcards setPage={setPage} languageConfig={selectedLanguage} selectedWordId={selectedWordId} />;
   } else if (page !== "home") {
     return (
-      <BasicWordForm setPage={setPage} languageConfig={selectedLanguage} />
+      <BasicWordForm setPage={setPage} languageConfig={selectedLanguage} setSelectedWordId={setSelectedWordId} />
     );
   }
 }

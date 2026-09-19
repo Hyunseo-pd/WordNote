@@ -46,7 +46,7 @@ const getValueByPath = (item, path) => {
 const capitalizeFirstLetter = (value, locale = "de-DE") =>
   value ? `${value.charAt(0).toLocaleUpperCase(locale)}${value.slice(1)}` : "";
 
-function BasicWordForm({ setPage, languageConfig }) {
+function BasicWordForm({ setPage, languageConfig, setSelectedWordId }) {
   const language = languageConfig;
   const partsOfSpeech = language.parts ?? DEFAULT_PARTS;
   const nounPart = partsOfSpeech[0];
@@ -67,6 +67,7 @@ function BasicWordForm({ setPage, languageConfig }) {
   const [editingWordId, setEditingWordId] = useState(null);
   const [editingWord, setEditingWord] = useState(null);
   const [words, setWords] = useState([]);
+
 
   const fieldControls = fieldControlMap[part] ?? [];
   const formatWordForPart = (value, selectedPart) =>
@@ -586,7 +587,8 @@ function BasicWordForm({ setPage, languageConfig }) {
 
               return (
                 <li key={item.id} className="word-item">
-                  <div>
+                  <div onClick={() =>{setSelectedWordId(item.id);
+                            setPage(`${language.id}-flashcards`);}}>
                     {isEditing ? (
                       <>
                         <label className="edit-word-field">
