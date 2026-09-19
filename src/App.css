@@ -729,6 +729,20 @@ button:hover {
   padding-bottom: 2px;
   white-space: nowrap;
 }
+.difficulty-buttons button,
+.style-buttons button,
+.length-buttons button { 
+   border: 1px solid var(--border);
+  background: var(--input-bg);
+  color: var(--text-h);
+}
+.difficulty-buttons button.selected,
+.style-buttons button.selected,
+.length-buttons button.selected {
+   border-color: var(--accent);
+  background: var(--accent);
+  color: white;
+}
 .ai-example {
   width: 100%;
   margin: 0;

@@ -258,6 +258,9 @@ function Flashcards({ setPage, languageConfig }) {
         body: JSON.stringify({
           word: filteredWords[currentIndex].word.trim(),
           language: languageConfig.label,
+          difficulty: exampleDifficulty,
+          length: exampleLength,
+          style: exampleStyle,
         }),
       });
 
@@ -398,22 +401,22 @@ function Flashcards({ setPage, languageConfig }) {
               <div className="difficulty-level">
                 <span>난이도</span>
                 <div className="difficulty-buttons">
-                  <button>쉬움</button>
-                  <button>어려움</button>
+                  <button key = "easy" type="button" className = {exampleDifficulty === "easy" ? "selected" : ""} onClick = {() => setExampleDifficulty("easy")}>쉬움</button>
+                  <button key = "hard" type="button" className = {exampleDifficulty === "hard" ? "selected" : ""} onClick = {() => setExampleDifficulty("hard")}>어려움</button>
                 </div>
               </div>
               <div className="style-options">
                 <span>스타일</span>
                 <div className="style-buttons">
-                  <button>구어체</button>
-                  <button>문어체</button>
+                  <button key = "casual" type="button" className = {exampleStyle === "casual" ? "selected" : ""} onClick = {() => setExampleStyle("casual")}>구어체</button>
+                  <button key = "formal" type="button" className = {exampleStyle === "formal" ? "selected" : ""} onClick = {() => setExampleStyle("formal")}>문어체</button>
                 </div>
               </div>
               <div className="length-options">
                 <span>길이</span>
                 <div className="length-buttons">
-                  <button>짧게</button>
-                  <button>길게</button>
+                  <button key = "short" type="button" className = {exampleLength === "short" ? "selected" : ""} onClick = {() => setExampleLength("short")}>짧게</button>
+                  <button key = "long" type="button" className = {exampleLength === "long" ? "selected" : ""} onClick = {() => setExampleLength("long")}>길게</button>
                 </div>
               </div>
             </div>
