@@ -587,8 +587,12 @@ function BasicWordForm({ setPage, languageConfig, setSelectedWordId }) {
 
               return (
                 <li key={item.id} className="word-item">
-                  <div onClick={() =>{setSelectedWordId(item.id);
-                            setPage(`${language.id}-flashcards`);}}>
+                  <div  onClick={() => {
+    if (isEditing) return;
+
+    setSelectedWordId(item.id);
+    setPage(`${language.id}-flashcards`);
+  }}>
                     {isEditing ? (
                       <>
                         <label className="edit-word-field">
