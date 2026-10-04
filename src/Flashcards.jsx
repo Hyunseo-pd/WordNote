@@ -423,8 +423,8 @@ function Flashcards({ setPage, languageConfig, selectedWordId }) {
               <div className="style-options">
                 <span>스타일</span>
                 <div className="style-buttons">
-                  <button key = "casual" type="button" className = {exampleStyle === "casual" ? "selected" : ""} onClick = {() => setExampleStyle("casual")}>구어체</button>
-                  <button key = "formal" type="button" className = {exampleStyle === "formal" ? "selected" : ""} onClick = {() => setExampleStyle("formal")}>문어체</button>
+                  <button key = "casual" type="button" className = {exampleStyle === "casual" ? "selected" : ""} onClick = {() => setExampleStyle("casual")}>일상</button>
+                  <button key = "formal" type="button" className = {exampleStyle === "formal" ? "selected" : ""} onClick = {() => setExampleStyle("formal")}>격식</button>
                 </div>
               </div>
               <div className="length-options">
